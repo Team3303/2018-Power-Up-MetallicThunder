@@ -7,7 +7,8 @@
 
 #include <iostream>
 #include <string>
-
+#include <RobotDrive.h>
+#include <Joystick.h>
 #include <IterativeRobot.h>
 #include <LiveWindow/LiveWindow.h>
 #include <SmartDashboard/SendableChooser.h>
@@ -35,6 +36,8 @@ public:
 	 * SendableChooser make sure to add them to the chooser code above as
 	 * well.
 	 */
+
+
 	void AutonomousInit() override {
 		m_autoSelected = m_chooser.GetSelected();
 		// m_autoSelected = SmartDashboard::GetString(
@@ -58,11 +61,18 @@ public:
 
 	void TeleopInit() {}
 
-	void TeleopPeriodic() {}
+	void TeleopPeriodic() {
+		myRobot.TankDrive(joystick_L.GetY(), joystick_R.GetY());
+
+
+	}
 
 	void TestPeriodic() {}
-
+//this is private
 private:
+	//this is robot drive my robot 0 and 1 semicolon
+	frc::RobotDrive myRobot{0 , 1};
+	frc::Joystick joystick_R {0}, joystick_L {1};
 	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
 	frc::SendableChooser<std::string> m_chooser;
 	const std::string kAutoNameDefault = "Default";
