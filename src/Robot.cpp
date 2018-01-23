@@ -24,7 +24,7 @@ private:
 	frc::Joystick joystick_R {0}, joystick_L {1};
 	frc::Joystick controller {2};
 	frc::Compressor *compressor = new Compressor(0);
-	frc::DoubleSolenoid ugandaknuckles {0, 1};
+	frc::DoubleSolenoid rampSolenoid {0, 1};
 	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
 	frc::SendableChooser<std::string> m_chooser;
 	const std::string kAutoNameDefault = "Default";
@@ -76,12 +76,21 @@ public:
 	}
 
 	void TeleopInit() {
+		//sets compressor activation
 		compressor->SetClosedLoopControl(true);
 	}
 
 	void TeleopPeriodic() {
+		//joystick input for the left and right drive of the robot
 		myRobot.TankDrive(joystick_L.GetY(), joystick_R.GetY());
-		ugandaknuckles.Set(frc::DoubleSolenoid::kForward);
+
+		//controller input for the vertical ramp controls
+		if (controller.GetRawButton(1)) {
+			rampSolenoid.Set(frc::DoubleSolenoid::kForward);
+		}
+		else if (controller.GetRawButton(2)){
+			rampSolenoid.Set(frc::DoubleSolenoid::kForward);
+		}
 
 	}
 
