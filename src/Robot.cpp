@@ -89,7 +89,7 @@ public:
 			rampSolenoid.Set(frc::DoubleSolenoid::kForward);
 		}
 		else if (controller.GetRawButton(2)){
-			rampSolenoid.Set(frc::DoubleSolenoid::kForward);
+			rampSolenoid.Set(frc::DoubleSolenoid::kReverse);
 		}
 
 	}
