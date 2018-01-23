@@ -13,8 +13,24 @@
 #include <LiveWindow/LiveWindow.h>
 #include <SmartDashboard/SendableChooser.h>
 #include <SmartDashboard/SmartDashboard.h>
+#include <Compressor.h>
+#include <DoubleSolenoid.h>
 
 class Robot : public frc::IterativeRobot {
+
+private:
+	//this is robot drive my robot 0 and 1 semicolon
+	frc::RobotDrive myRobot{0 , 1};
+	frc::Joystick joystick_R {0}, joystick_L {1};
+	frc::Joystick controller {2};
+	frc::Compressor *compressor = new Compressor(0);
+	frc::DoubleSolenoid ugandaknuckles {0, 1};
+	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
+	frc::SendableChooser<std::string> m_chooser;
+	const std::string kAutoNameDefault = "Default";
+	const std::string kAutoNameCustom = "My Auto";
+	std::string m_autoSelected;
+
 public:
 	void RobotInit() {
 		m_chooser.AddDefault(kAutoNameDefault, kAutoNameDefault);
@@ -59,25 +75,17 @@ public:
 		}
 	}
 
-	void TeleopInit() {}
+	void TeleopInit() {
+		compressor->SetClosedLoopControl(true);
+	}
 
 	void TeleopPeriodic() {
 		myRobot.TankDrive(joystick_L.GetY(), joystick_R.GetY());
-
+		ugandaknuckles.Set(frc::DoubleSolenoid::kForward);
 
 	}
 
 	void TestPeriodic() {}
-//this is private
-private:
-	//this is robot drive my robot 0 and 1 semicolon
-	frc::RobotDrive myRobot{0 , 1};
-	frc::Joystick joystick_R {0}, joystick_L {1};
-	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
-	frc::SendableChooser<std::string> m_chooser;
-	const std::string kAutoNameDefault = "Default";
-	const std::string kAutoNameCustom = "My Auto";
-	std::string m_autoSelected;
 };
 
 START_ROBOT_CLASS(Robot)
