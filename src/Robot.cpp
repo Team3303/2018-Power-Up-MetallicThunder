@@ -25,6 +25,7 @@ private:
 	frc::Joystick controller {2};
 	frc::Compressor *compressor = new Compressor(0);
 	frc::DoubleSolenoid rampSolenoid {0, 1};
+	frc::DoubleSolenoid armSolenoid {2, 3};
 	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
 	frc::SendableChooser<std::string> m_chooser;
 	const std::string kAutoNameDefault = "Default";
@@ -84,12 +85,20 @@ public:
 		//joystick input for the left and right drive of the robot
 		myRobot.TankDrive(joystick_L.GetY(), joystick_R.GetY());
 
-		//controller input for the vertical ramp controls
+		//controller input for the vertical ramp controls: a and b
 		if (controller.GetRawButton(1)) {
 			rampSolenoid.Set(frc::DoubleSolenoid::kForward);
 		}
 		else if (controller.GetRawButton(2)){
 			rampSolenoid.Set(frc::DoubleSolenoid::kReverse);
+		}
+
+		//controller input for the arm controls: rb and lb
+		if (controller.GetRawButton(5)) {
+			armSolenoid.Set(frc::DoubleSolenoid::kForward);
+		}
+		else if (controller.GetRawButton(6)) {
+			armSolenoid.Set(frc::DoubleSolenoid::kReverse);
 		}
 
 	}
