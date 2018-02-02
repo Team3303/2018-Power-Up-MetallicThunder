@@ -16,6 +16,7 @@
 #include <Compressor.h>
 #include <DoubleSolenoid.h>
 #include <AnalogGyro.h>
+#include <Talon.h>
 #include <sstream>
 
 class Robot : public frc::IterativeRobot {
@@ -25,6 +26,7 @@ private:
 	frc::RobotDrive myRobot{0, 1};
 	frc::Joystick joystick_R {0}, joystick_L {1};
 	frc::Joystick controller {2};
+	frc::Talon intake {3};
 	frc::Compressor *compressor = new Compressor(0);
 	frc::DoubleSolenoid ramp {0, 1}, arm {2, 3}, fire {4, 5};
 	frc::AnalogGyro gyro {1};
@@ -41,22 +43,6 @@ public:
 		m_chooser.AddObject(kAutoNameCustom, kAutoNameCustom);
 		frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 	}
-
-	/*
-	 * This autonomous (along with the chooser code above) shows how to
-	 * select
-	 * between different autonomous modes using the dashboard. The sendable
-	 * chooser code works with the Java SmartDashboard. If you prefer the
-	 * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-	 * GetString line to get the auto name from the text box below the Gyro.
-	 *
-	 * You can add additional auto modes by adding additional comparisons to
-	 * the
-	 * if-else structure below with additional strings. If using the
-	 * SendableChooser make sure to add them to the chooser code above as
-	 * well.
-	 */
-
 
 	void AutonomousInit() override {
 		m_autoSelected = m_chooser.GetSelected();
@@ -87,6 +73,18 @@ public:
 	void TeleopPeriodic() {
 		//joystick input for the left and right drive of the robot
 		myRobot.TankDrive(joystick_L.GetY(), joystick_R.GetY());
+
+		//controller input for the intake wheels: x and y
+		if (controller.GetRawButton(3)) {
+			intake.Set(1);
+		}
+		else if (controller.GetRawButton(4)) {
+			intake.Set(-1);
+		}
+		else {
+			intake.Set(0);
+		}
+
 
 		//gyro things
 		strs << gyro.GetAngle();
