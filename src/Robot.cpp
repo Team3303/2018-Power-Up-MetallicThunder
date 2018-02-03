@@ -22,7 +22,6 @@
 class Robot : public frc::IterativeRobot {
 
 private:
-	//this is robot drive my robot 0 and 1 semicolon
 	frc::RobotDrive myRobot{0, 1};
 	frc::Joystick joystick_R {0}, joystick_L {1};
 	frc::Joystick controller {2};
@@ -58,6 +57,15 @@ private:
 	}
 
 public:
+
+	std::string InToString(int i){
+		std::stringstream ss;
+		std::string s;
+		ss << i ;
+		ss >> s ;
+		return s;
+	}
+
 	void RobotInit() {
 		m_chooser.AddDefault(kAutoNameDefault, kAutoNameDefault);
 		m_chooser.AddObject(kAutoNameCustom, kAutoNameCustom);
@@ -88,6 +96,7 @@ public:
 	void TeleopInit() {
 		//sets compressor activation
 		compressor->SetClosedLoopControl(true);
+		//gyro.Calibrate();
 	}
 
 	void TeleopPeriodic() {
@@ -107,10 +116,10 @@ public:
 
 
 		//gyro things
-		strs << gyro.GetAngle();
-		std::string str;
-		strs >> str;
-		SmartDashboard::PutString("DB/String 0", str);
+		//convert string
+
+		SmartDashboard::PutString("DB/String 0", InToString(gyro.GetAngle()));
+		SmartDashboard::PutString("DB/String 1", InToString(gyro.GetRate()));
 
 		//controller input for the vertical ramp controls: a and b
 		if (controller.GetRawButton(1)) {
