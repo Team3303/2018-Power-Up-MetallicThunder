@@ -37,6 +37,26 @@ private:
 	std::string m_autoSelected;
 	std::stringstream strs;
 
+	void TurnRobot(double angle){
+		double lastAngle = gyro.GetAngle();
+		int speed;
+		int range = 1;
+
+
+
+		if(angle < 0) {
+			while(gyro.GetAngle() - lastAngle > angle) {
+				speed = (angle - (gyro.GetAngle() - lastAngle)) / angle;
+				myRobot.TankDrive(-1*speed, 1*speed);
+			}
+		} else {
+			while(gyro.GetAngle() - lastAngle < angle) {
+				speed = -(angle - (gyro.GetAngle() - lastAngle)) / angle;
+				myRobot.TankDrive(1*speed, -1*speed);
+			}
+		}
+	}
+
 public:
 	void RobotInit() {
 		m_chooser.AddDefault(kAutoNameDefault, kAutoNameDefault);

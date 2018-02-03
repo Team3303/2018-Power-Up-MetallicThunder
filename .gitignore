@@ -1,1 +1,5 @@
 .settings/language.settings.xml
+linux_simulate/
+spec.i
+.settings/org.eclipse.cdt.managedbuilder.core.prefs
+Debug/src/Robot.o
