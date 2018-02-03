@@ -18,6 +18,7 @@
 #include <AnalogGyro.h>
 #include <Talon.h>
 #include <sstream>
+#include <Encoder.h>
 
 class Robot : public frc::IterativeRobot {
 
@@ -31,10 +32,19 @@ private:
 	frc::AnalogGyro gyro {1};
 	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
 	frc::SendableChooser<std::string> m_chooser;
+	frc::Encoder encoder{ 0, 1, false, Encoder::EncodingType::k4X };
 	const std::string kAutoNameDefault = "Default";
 	const std::string kAutoNameCustom = "My Auto";
 	std::string m_autoSelected;
 	std::stringstream strs;
+
+	bool A(){ return controller.GetRawButton(1); }
+	bool B(){ return controller.GetRawButton(2); }
+	bool X(){ return controller.GetRawButton(3); }
+	bool Y(){ return controller.GetRawButton(4); }
+	bool Lb(){ return controller.GetRawButton(5); }  // current gyro loop break
+	bool Rb(){ return controller.GetRawButton(6); }
+	bool start(){ return controller.GetRawButton(7); } //find actual number
 
 	void TurnRobot(double angle){
 		double lastAngle = gyro.GetAngle();
@@ -46,6 +56,34 @@ private:
 			myRobot.TankDrive(1*speed, -1*speed);
 		}
 	}
+
+	// TODO:Distance Tracking
+		void ForwardDistance(double dist){
+			encoder.Reset();
+			double distLeft = dist;
+
+			int counter = 0;
+			while(encoder.GetDistance() < dist && !Lb()) {
+				std::stringstream steam;
+				std::string encoderValue;
+				steam << encoder.GetDistance();
+				steam >> encoderValue;
+				SmartDashboard::PutString("DB/String 1", encoderValue);
+
+
+				std::stringstream steam2;
+				std::string counterValue;
+				steam2 << counter;
+				steam2 >> counterValue;
+				SmartDashboard::PutString("DB/String 2", counterValue);
+
+				counter++;
+				distLeft = dist - encoder.GetDistance();
+				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*/ 0.15, 0.0);
+			}
+
+			myRobot.Drive(0.0, 0.0);
+		}
 
 public:
 
@@ -137,6 +175,11 @@ public:
 		}
 
 	}
+
+
+
+
+
 
 	void TestPeriodic() {}
 };
