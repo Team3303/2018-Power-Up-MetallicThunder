@@ -41,18 +41,9 @@ private:
 		int speed;
 		int range = 1;
 
-
-
-		if(angle < 0) {
-			while(gyro.GetAngle() - lastAngle > angle) {
-				speed = (angle - (gyro.GetAngle() - lastAngle)) / angle;
-				myRobot.TankDrive(-1*speed, 1*speed);
-			}
-		} else {
-			while(gyro.GetAngle() - lastAngle < angle) {
-				speed = -(angle - (gyro.GetAngle() - lastAngle)) / angle;
-				myRobot.TankDrive(1*speed, -1*speed);
-			}
+		while(abs((gyro.GetAngle() - lastAngle) - angle) < range){
+			speed = (angle - (gyro.GetAngle() - lastAngle)) / angle;
+			myRobot.TankDrive(1*speed, -1*speed);
 		}
 	}
 
