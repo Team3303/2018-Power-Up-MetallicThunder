@@ -38,13 +38,14 @@ private:
 	std::string m_autoSelected;
 	std::stringstream strs;
 
-	bool A(){ return controller.GetRawButton(1); }
-	bool B(){ return controller.GetRawButton(2); }
-	bool X(){ return controller.GetRawButton(3); }
-	bool Y(){ return controller.GetRawButton(4); }
-	bool Lb(){ return controller.GetRawButton(5); }  // current gyro loop break
-	bool Rb(){ return controller.GetRawButton(6); }
-	bool start(){ return controller.GetRawButton(7); } //find actual number
+	bool A() { return controller.GetRawButton(1); }
+	bool B() { return controller.GetRawButton(2); }
+	bool X() { return controller.GetRawButton(3); }
+	bool Y() { return controller.GetRawButton(4); }
+	bool Lb() { return controller.GetRawButton(5); }  // current gyro loop break
+	bool Rb() { return controller.GetRawButton(6); }
+	bool Rt() { return controller.GetRawAxis(3) > 0.5; }
+	bool start() { return controller.GetRawButton(7); } //find actual number
 
 	void TurnRobot(double angle){
 		double lastAngle = gyro.GetAngle();
@@ -151,23 +152,23 @@ public:
 		SmartDashboard::PutString("DB/String 1", InToString(gyro.GetRate()));
 
 		//controller input for the vertical ramp controls: a and b
-		if (controller.GetRawButton(1)) {
+		if (A()) {
 			ramp.Set(frc::DoubleSolenoid::kForward);
 		}
-		else if (controller.GetRawButton(2)){
+		else if (B()){
 			ramp.Set(frc::DoubleSolenoid::kReverse);
 		}
 
 		//controller input for the arm controls: rb and lb
-		if (controller.GetRawButton(6)) {
+		if (Rb()) {
 			arm.Set(frc::DoubleSolenoid::kForward);
 		}
-		else if (controller.GetRawButton(5)) {
+		else if (Lb()) {
 			arm.Set(frc::DoubleSolenoid::kReverse);
 		}
 
 		//controller input for the arm controls: rt
-		if (controller.GetRawAxis(3) >= 0.5) {
+		if (Rt()) {
 			fire.Set(frc::DoubleSolenoid::kForward);
 		}
 		else {
