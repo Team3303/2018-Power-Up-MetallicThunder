@@ -45,15 +45,20 @@ private:
 	bool Lb() { return controller.GetRawButton(5); }  // current gyro loop break
 	bool Rb() { return controller.GetRawButton(6); }
 	bool Rt() { return controller.GetRawAxis(3) > 0.5; }
-	bool start() { return controller.GetRawButton(7); } //find actual number
+	bool Lc() { return controller.GetRawButton(9); }
+	bool Rc() { return controller.GetRawButton(10); }
 
-	void TurnRobot(double angle){
-		double lastAngle = gyro.GetAngle();
-		int speed;
-		int range = 1;
+	bool start() { return controller.GetRawButton(8); } //find actual number
 
-		while(abs((gyro.GetAngle() - lastAngle) - angle) < range){
-			speed = (angle - (gyro.GetAngle() - lastAngle)) / angle;
+	void TurnRobot(double angle) {
+		double lastAngle = gyro.GetAngle(); //angle at which robot starts
+		double speed; //turning speed
+		double range = 1; //wiggle room synonym
+
+		while(fabs(angle - (gyro.GetAngle() - lastAngle)) > range && !Lc()){  //while not within range
+			speed = (angle - (gyro.GetAngle() - lastAngle)) / angle; //sets speed based on the angle remaining
+			SmartDashboard::PutString("DB/String 2", DoubleToString(speed));
+			SmartDashboard::PutString("DB/String 0", DoubleToString(gyro.GetAngle()));
 			myRobot.TankDrive(1*speed, -1*speed);
 		}
 	}
@@ -88,7 +93,7 @@ private:
 
 public:
 
-	std::string InToString(int i){
+	std::string DoubleToString(double i){
 		std::stringstream ss;
 		std::string s;
 		ss << i ;
@@ -126,7 +131,7 @@ public:
 	void TeleopInit() {
 		//sets compressor activation
 		compressor->SetClosedLoopControl(true);
-		//gyro.Calibrate();
+		gyro.Calibrate();
 	}
 
 	void TeleopPeriodic() {
@@ -148,8 +153,8 @@ public:
 		//gyro things
 		//convert string
 
-		SmartDashboard::PutString("DB/String 0", InToString(gyro.GetAngle()));
-		SmartDashboard::PutString("DB/String 1", InToString(gyro.GetRate()));
+		SmartDashboard::PutString("DB/String 0", DoubleToString(gyro.GetAngle()));
+		SmartDashboard::PutString("DB/String 1", DoubleToString(gyro.GetRate()));
 
 		//controller input for the vertical ramp controls: a and b
 		if (A()) {
@@ -175,6 +180,14 @@ public:
 			fire.Set(frc::DoubleSolenoid::kReverse);
 		}
 
+		//starts gyro turn test
+		if (Rc()) {
+			TurnRobot(90);
+		}
+		//resets gyro: start button
+		if (start()){
+			gyro.Reset();
+		}
 	}
 
 
