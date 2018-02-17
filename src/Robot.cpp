@@ -27,7 +27,7 @@ private:
 	frc::RobotDrive myRobot{0, 1};
 	frc::Joystick joystick_R {0}, joystick_L {1};
 	frc::Joystick controller {2};
-	frc::Talon intake1{6}, intake2{7},
+	frc::Talon Lintake{6}, Rintake{7},
 			   shooter1 {4}, shooter2{5},
 			   transfer1{8}, transfer2{9},
 			   ledblink{9};
@@ -122,8 +122,9 @@ public:
 		return s;
 	}
 	void SetIntake(double value){
-		intake1.Set(value);
-		intake2.Set(dpad_left() ? -value : value);
+//		Lintake.Set(value);
+//		Rintake.Set(dpad_left() ? -value : value);
+		Lintake.Set(value);
 	}
 	void SetTransfer(double value) {
 		transfer1.Set(value);
@@ -197,9 +198,10 @@ public:
 		 * RIGHT BUMPER: Intake Out
 		 */
 		if (Lb()) {
-			SetIntake(-0.5);
-		} else if (Rb()) {
-			SetIntake(0.5);
+//			SetIntake(-0.5);
+			SetIntake(0.2);
+//		} else if (Rb()) {
+//			SetIntake(0.5);
 		} else {
 			SetIntake(0);
 		}
