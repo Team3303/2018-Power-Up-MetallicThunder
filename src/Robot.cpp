@@ -14,12 +14,15 @@
 #include <LiveWindow/LiveWindow.h>
 #include <RobotDrive.h>
 #include <sstream>
+#include <stdlib.h>
 #include <string>
 #include <SmartDashboard/SendableChooser.h>
 #include <SmartDashboard/SmartDashboard.h>
 #include <Talon.h>
 #include <Timer.h>
 #include "wpilib.h"
+
+using namespace std;
 
 class Robot : public frc::IterativeRobot {
 
@@ -29,8 +32,7 @@ private:
 	frc::Joystick controller {2};
 	frc::Talon Lintake{6}, Rintake{7},
 			   shooter1 {4}, shooter2{5},
-			   transfer1{8}, transfer2{9},
-			   ledblink{9};
+			   transfer{8};
 	frc::Compressor *compressor = new Compressor(0);
 	frc::DoubleSolenoid ramp {0, 1}, arm {2, 3}, fire {4, 5};
 	frc::AnalogGyro gyro {1};
@@ -55,7 +57,7 @@ private:
 	 * X: Arms in
 	 * Y: Arms out
 	 *
-	 * A: Move ramp up and down
+	 * Dpad_Up and Dpad_Down: Move ramp up and down
 	 * B: Shoot
 	 */
 
@@ -95,6 +97,24 @@ private:
 		initialAngle = gyro.GetAngle(); //angle at which robot starts
 	}
 
+	// Inches to Wheel Rotations and Execution Function
+//		void goDistanceInches(float numOfInches, char directionToTurn = '', float numOfDegrees = 90){
+//			float numOfRotations = numOfInches/18.84;
+//			//make the wheels turn numOfRotations times
+//
+//			// Turns Robot AFTER moving
+//			if(directionToTurn == 'R'){
+//				//Turn 90 degrees to the right
+//				TurnRobot(numOfDegrees);
+//			} else if(directionToTurn == 'L'){
+//				//Turn 90 degrees to the left
+//				TurnRobot(-numOfDegrees);
+//			}
+//
+//			// MOVE FORWARDS
+//
+//		}
+
 	// TODO:Distance Tracking
 		void ForwardDistance(double dist){
 			encoder.Reset();
@@ -123,12 +143,11 @@ public:
 	}
 	void SetIntake(double value){
 //		Lintake.Set(value);
-//		Rintake.Set(dpad_left() ? -value : value);
+		Rintake.Set(dpad_left() ? -value : value);
 		Lintake.Set(value);
 	}
 	void SetTransfer(double value) {
-		transfer1.Set(value);
-		transfer2.Set(value);
+		transfer.Set(value);;
 	}
 	void SetShooter(double value) {
 		shooter1.Set(value);
@@ -136,25 +155,106 @@ public:
 	}
 
 	void RobotInit() {
-		m_chooser.AddDefault(kAutoNameDefault, kAutoNameDefault);
+		m_chooser.AddDefault("DO_NOTHING1", "DO_NOTHING2");
 		m_chooser.AddObject(kAutoNameCustom, kAutoNameCustom);
 		frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 	}
 
 	void AutonomousInit() override {
-//		m_autoSelected = m_chooser.GetSelected(); ??
-		m_autoSelected = SmartDashboard::GetString("Auto Selector", kAutoNameDefault);
-
-		std::cout << "Auto selected: " << m_autoSelected << std::endl;
-		SmartDashboard::PutString("DB/String 3", m_autoSelected);
-		if (m_autoSelected == kAutoNameCustom) {
-			// Custom Auto goes here
-
-		} else {
-
-		}
-
-	}
+//		std::string gameData;
+//		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+//
+////		m_autoSelected = m_chooser.GetSelected(); ??
+//		m_autoSelected = SmartDashboard::GetString("Auto Selector", kAutoNameDefault);
+//
+//		std::cout << "Auto selected: " << m_autoSelected << std::endl;
+//		SmartDashboard::PutString("DB/String 3", m_autoSelected);
+//		if(m_autoSelected[2]== 'W'){
+//			//sleep(1000);
+//		}
+//		if(m_autoSelected[1] == "O"){
+//			if (m_autoSelected[0] == "L") {  //If our robot starts on the left
+//				if(gameData.length() > 0){
+//					if(gameData[0] == 'L'){  //If our switch is on the left
+//						goDistanceInches(136.5, 'R');  //Distance from starting point to first firing position
+//						//Launch cube, then turn 90 degrees to the right
+//						goDistanceInches(1, 'R');
+//						goDistanceInches(1, 'R');
+//						goDistanceInches(1);
+//						//Pick up cube
+//						//Turn 180
+//						goDistanceInches(1, 'L', 180);  //Second Firing Position
+//						//turn 180 and fire
+//					} else if(gameData[0] == 'R'){  //If our switch is on the right
+//						goDistanceInches(1, 'R');
+//						//Turn 90 degrees and launch cube
+//					}
+//				}
+//			} else if (m_autoSelected[0] == "M") {  //If our robot starts in the middle
+//				if(gameData.length() > 0){
+//					if(gameData[0] == 'L'){  //If our switch is on the left
+//						goDistanceInches(1, 'L', 30);
+//						//fire cube
+//						goDistanceInches(1, 'R', 30);
+//						goDistanceInches(1);
+//						//pick up cube
+//						goDistanceInches(-1, 'L', 30);
+//						//fire cube
+//					} else if(gameData[0] == 'R'){  //If our switch is on the right
+//						goDistanceInches(1, 'R', 30);
+//						//fire cube
+//						goDistanceInches(1, 'L', 30);
+//						goDistanceInches(1);
+//						//pick up cube
+//						goDistanceInches(-1, 'R', 30);
+//						//fire cube
+//					}
+//				}
+//			} else if (m_autoSelected[0] == "R") {  //If our robot starts on the right
+//				if(gameData.length() > 0){
+//					if(gameData[0] == 'L'){  //If our switch is on the left
+//
+//					} else if(gameData[0] == 'R'){  //If our switch is on the right
+//						goDistanceInches(136.5, 'L');  //Distance from starting point to first firing position
+//						//Launch cube, then turn 90 degrees to the right
+//						goDistanceInches(1, 'L');
+//						goDistanceInches(1, 'L');
+//						goDistanceInches(1);
+//						//Pick up cube
+//						//Turn 180
+//						goDistanceInches(1, 'R', 180);  //Second Firing Position
+//						//turn 180 and fire
+//					}
+//				}
+//			}
+//		} else if (m_autoSelected[1] == 'D'){/*****************************DEFENSIVE CODE*************************************/
+//			if (m_autoSelected[0] == "L") {  //If our robot starts on the left
+//				if(gameData.length() > 0){
+//					if(gameData[0] == 'L'){  //If our switch is on the left
+//
+//					} else if(gameData[0] == 'R'){  //If our switch is on the right
+//
+//					}
+//				}
+//			} else if (m_autoSelected[0] == "M") {  //If our robot starts in the middle
+//				if(gameData.length() > 0){
+//					if(gameData[0] == 'L'){  //If our switch is on the left
+//
+//					} else if(gameData[0] == 'R'){  //If our switch is on the right
+//
+//					}
+//				}
+//			} else if (m_autoSelected[0] == "R") {  //If our robot starts on the right
+//				if(gameData.length() > 0){
+//					if(gameData[0] == 'L'){  //If our switch is on the left
+//
+//					} else if(gameData[0] == 'R'){  //If our switch is on the right
+//
+//					}
+//				}
+//			}
+//		}
+}
 
 	void AutonomousPeriodic() {
 		if (m_autoSelected == kAutoNameCustom) {
@@ -189,7 +289,7 @@ public:
 			myRobot.TankDrive(-RDrive(), -LDrive());
 		}
 
-		ledblink.Set(0.65);
+//		ledblink.Set(0.65);
 
 		frc::SmartDashboard::PutString("DB/String 3", DoubleToString(joystick_R.GetY()));
 
@@ -198,10 +298,9 @@ public:
 		 * RIGHT BUMPER: Intake Out
 		 */
 		if (Lb()) {
-//			SetIntake(-0.5);
-			SetIntake(0.2);
-//		} else if (Rb()) {
-//			SetIntake(0.5);
+			SetIntake(-0.5);
+		} else if (Rb()) {
+			SetIntake(0.5);
 		} else {
 			SetIntake(0);
 		}
@@ -211,9 +310,9 @@ public:
 		 * RIGHT BUMPER: Transfer powercube to intake/vault
 		 */
 		if (Lt()) {
-			SetTransfer(-0.25);
+			SetTransfer(0.6);
 		} else if (Rb()) {
-			SetTransfer(0.25);
+			SetTransfer(-0.6);
 		} else {
 			SetTransfer(0);
 		}
