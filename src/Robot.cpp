@@ -327,7 +327,7 @@ public:
 			shooterSpeed = 1;
 		} else if (dpad_down()){
 			ramp.Set(frc::DoubleSolenoid::kReverse);
-			shooterSpeed = 0.5;
+			shooterSpeed = 0.25;
 		}
 
 		/*
@@ -336,6 +336,8 @@ public:
 		if (B()) {
 			timer.Start();
 			SetShooter(shooterSpeed);
+			if (timer.Get() > 0.9)
+				SetTransfer(1);
 			if (timer.Get() > 1)
 				fire.Set(frc::DoubleSolenoid::kForward);
 		} else {
