@@ -98,22 +98,22 @@ private:
 	}
 
 	// Inches to Wheel Rotations and Execution Function
-//		void goDistanceInches(float numOfInches, char directionToTurn = '', float numOfDegrees = 90){
-//			float numOfRotations = numOfInches/18.84;
-//			//make the wheels turn numOfRotations times
-//
-//			// Turns Robot AFTER moving
-//			if(directionToTurn == 'R'){
-//				//Turn 90 degrees to the right
-//				TurnRobot(numOfDegrees);
-//			} else if(directionToTurn == 'L'){
-//				//Turn 90 degrees to the left
-//				TurnRobot(-numOfDegrees);
-//			}
-//
-//			// MOVE FORWARDS
-//
-//		}
+		void goDistanceInches(float numOfInches, char directionToTurn = '', float numOfDegrees = 90){
+			float numOfRotations = numOfInches/18.84;
+			//make the wheels turn numOfRotations times
+
+			// Turns Robot AFTER moving
+			if(directionToTurn == 'R'){
+				//Turn 90 degrees to the right
+				TurnRobot(numOfDegrees);
+			} else if(directionToTurn == 'L'){
+				//Turn 90 degrees to the left
+				TurnRobot(-numOfDegrees);
+			}
+
+			// MOVE FORWARDS
+
+		}
 
 	// TODO:Distance Tracking
 		void ForwardDistance(double dist){
@@ -164,7 +164,7 @@ public:
 		std::string gameData;
 		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
 
-		m_autoSelected = m_chooser.GetSelected(); ??
+		m_autoSelected = m_chooser.GetSelected();
 		m_autoSelected = SmartDashboard::GetString("Auto Selector", kAutoNameDefault);
 
 		std::cout << "Auto selected: " << m_autoSelected << std::endl;
@@ -178,7 +178,7 @@ public:
 					if(gameData[0] == 'L'){  //If our switch is on the left
 						goDistanceInches(10.5*12, 'R');
 						//fire cube
-						TurnRobot(-90)
+						TurnRobot(-90);
 						goDistanceInches(6*12, 'L');
 						goDistanceInches(3.5*12, 'R');
 						goDistanceInches((1.2*12)-36);
@@ -227,7 +227,7 @@ public:
 					} else if(gameData[0] == 'R'){  //If our switch is on the right
 						goDistanceInches(10.5*12, 'L');
 						//fire cube
-						TurnRobot(-90)
+						TurnRobot(-90);
 						goDistanceInches(6*12, 'R');
 						goDistanceInches(3.5*12, 'L');
 						goDistanceInches((1.2*12)-36);
