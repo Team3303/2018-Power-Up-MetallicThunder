@@ -300,7 +300,7 @@ public:
 		if (Lb()) {
 			SetIntake(-0.5);
 		} else if (Rb()) {
-			SetIntake(0.5);
+			SetIntake(0.75);
 		} else {
 			SetIntake(0);
 		}
@@ -327,7 +327,7 @@ public:
 			shooterSpeed = 1;
 		} else if (dpad_down()){
 			ramp.Set(frc::DoubleSolenoid::kReverse);
-			shooterSpeed = 0.25;
+			shooterSpeed = 0.30;
 		}
 
 		/*
