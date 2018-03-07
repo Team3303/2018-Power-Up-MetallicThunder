@@ -87,6 +87,7 @@ private:
 	bool R6() {return joystick_L.GetRawButton(6);}
 	double LDrive() {return joystick_L.GetY();}
 	double RDrive() {return joystick_R.GetY();}
+	double TimerVar;
 
 	// Turns robot relative to robot's position at the time of execution.  Delays everything until done.
 	double destinationAngle, initialAngle;  bool isTurning;
@@ -325,9 +326,12 @@ public:
 		if (dpad_up()){
 			ramp.Set(frc::DoubleSolenoid::kForward);
 			shooterSpeed = 1;
-		} else if (dpad_down()){
+			TimerVar = 1;
+		}
+		else if (dpad_down()){
 			ramp.Set(frc::DoubleSolenoid::kReverse);
 			shooterSpeed = 0.30;
+			TimerVar = 0.25;
 		}
 
 		/*
@@ -336,9 +340,7 @@ public:
 		if (B()) {
 			timer.Start();
 			SetShooter(shooterSpeed);
-			if (timer.Get() > 0.9)
-				SetTransfer(1);
-			if (timer.Get() > 1)
+			if (timer.Get() > TimerVar)
 				fire.Set(frc::DoubleSolenoid::kForward);
 		} else {
 			timer.Stop();
