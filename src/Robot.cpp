@@ -102,13 +102,12 @@ private:
 		void goDistanceInches(float numOfInches, char directionToTurn = '', float numOfDegrees = 90){
 			float numOfRotations = numOfInches/18.84;
 			//make the wheels turn numOfRotations times
+			myRobot.TankDrive(LDrive(), RDrive());
 
 			// Turns Robot AFTER moving
 			if(directionToTurn == 'R'){
-				//Turn 90 degrees to the right
 				TurnRobot(numOfDegrees);
 			} else if(directionToTurn == 'L'){
-				//Turn 90 degrees to the left
 				TurnRobot(-numOfDegrees);
 			}
 		}
@@ -170,101 +169,7 @@ public:
 		SmartDashboard::PutString("DB/String 3", m_autoSelected);
 		if(m_autoSelected[2]== 'W'){
 			//sleep(1000);
-		}/*
-		if(m_autoSelected[1] == "O"){
-			if (m_autoSelected[0] == "L") {  //If our robot starts on the left
-				if(gameData.length() > 0){
-					if(gameData[0] == 'L'){  //If our switch is on the left
-						goDistanceInches(10.5*12, 'R');
-						//fire cube
-						TurnRobot(-90);
-						goDistanceInches(6*12, 'L');
-						goDistanceInches(3.5*12, 'R');
-						goDistanceInches((1.2*12)-36);
-						//Pick up cube
-						goDistanceInches(-6, 'R', 180);
-						goDistanceInches(6);
-						//fire cube
-					} else if(gameData[0] == 'R'){  //If our switch is on the right
-						
-					}
-				}
-			} else if (m_autoSelected[0] == "M") {  //If our robot starts in the middle
-				if(gameData.length() > 0){
-					if(gameData[0] == 'L'){  //If our switch is on the left
-						goDistanceInches(3*12, 'L');
-						goDistanceInches(4.5*12, 'R');
-						goDistanceInches((9*12)-40);
-						//fire cube
-						goDistanceInches(-(6*12), 'L');
-						goDistanceInches(4.5*12, 'R');
-						goDistanceInches((3*12)+4);
-						//pick up cube
-						goDistanceInches(-0.5*12, 'R');
-						goDistanceInches(4.5*12, 'R');
-						goDistanceInches((4.5*12)-4);
-						//fire cube
-					} else if(gameData[0] == 'R'){  //If our switch is on the right
-						goDistanceInches(3*12, 'R');
-						goDistanceInches(4.5*12, 'L');
-						goDistanceInches((9*12)-40);
-						//fire cube
-						goDistanceInches(-(6*12), 'R');
-						goDistanceInches(4.5*12, 'L');
-						goDistanceInches((3*12)+4);
-						//pick up cube
-						goDistanceInches(-0.5*12, 'L');
-						goDistanceInches(4.5*12, 'L');
-						goDistanceInches((4.5*12)-4);
-						//fire cube
-					}
-				}
-			} else if (m_autoSelected[0] == "R") {  //If our robot starts on the right
-				if(gameData.length() > 0){
-					if(gameData[0] == 'L'){  //If our switch is on the left
-
-					} else if(gameData[0] == 'R'){  //If our switch is on the right
-						goDistanceInches(10.5*12, 'L');
-						//fire cube
-						TurnRobot(-90);
-						goDistanceInches(6*12, 'R');
-						goDistanceInches(3.5*12, 'L');
-						goDistanceInches((1.2*12)-36);
-						//Pick up cube
-						goDistanceInches(-6, 'L', 180);
-						goDistanceInches(6);
-						//fire cube
-					}
-				}
-			}
-		} else if (m_autoSelected[1] == 'D'){/*****************************DEFENSIVE CODE*************************************
-			if (m_autoSelected[0] == "L") {  //If our robot starts on the left
-				if(gameData.length() > 0){
-					if(gameData[0] == 'L'){  //If our switch is on the left
-
-					} else if(gameData[0] == 'R'){  //If our switch is on the right
-
-					}
-				}
-			} else if (m_autoSelected[0] == "M") {  //If our robot starts in the middle
-				if(gameData.length() > 0){
-					if(gameData[0] == 'L'){  //If our switch is on the left
-
-					} else if(gameData[0] == 'R'){  //If our switch is on the right
-
-					}
-				}
-			} else if (m_autoSelected[0] == "R") {  //If our robot starts on the right
-				if(gameData.length() > 0){
-					if(gameData[0] == 'L'){  //If our switch is on the left
-
-					} else if(gameData[0] == 'R'){  //If our switch is on the right
-
-					}
-				}
-			}
-
-		}*/
+		}
 }
 
 	void AutonomousPeriodic() {
@@ -273,17 +178,119 @@ public:
 		} else {
 			std::string gameData;
 			gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
-
-            if(gameData.length() > 0) {
-            	if(gameData[0] == 'L') {
-            		//TurnRobot(-90);
-//            		myRobot.TankDrive(-1, 1);
-            	} else {
-            		//TurnRobot(90);
-//            		myRobot.TankDrive(1, -1);
-            	}
-            }
 		}
+    /*
+	if(m_autoSelected[1] == "O"){
+		if (m_autoSelected[0] == "L") {  //If our robot starts on the left
+			if(gameData.length() > 0){
+				if(gameData[0] == 'L'){  //If our switch is on the left
+					goDistanceInches(10.5*12, 'R');
+					//fire cube
+					TurnRobot(-90);
+					goDistanceInches(6*12, 'L');
+					goDistanceInches(3.5*12, 'R');
+					goDistanceInches((1.2*12)-36);
+					//Pick up cube
+					goDistanceInches(-6, 'R', 180);
+					goDistanceInches(6);
+					//fire cube
+				} else if(gameData[0] == 'R'){  //If our switch is on the right
+					
+				}
+			}
+		} else if (m_autoSelected[0] == "M") {  //If our robot starts in the middle
+			if(gameData.length() > 0){
+				if(gameData[0] == 'L'){  //If our switch is on the left
+					goDistanceInches(3*12, 'L');
+					goDistanceInches(4.5*12, 'R');
+					goDistanceInches((9*12)-40);
+					//fire cube
+					goDistanceInches(-(6*12), 'L');
+					goDistanceInches(4.5*12, 'R');
+					goDistanceInches((3*12)+4);
+					//pick up cube
+					goDistanceInches(-0.5*12, 'R');
+					goDistanceInches(4.5*12, 'R');
+					goDistanceInches((4.5*12)-4);
+					//fire cube
+				} else if(gameData[0] == 'R'){  //If our switch is on the right
+					goDistanceInches(3*12, 'R');
+					goDistanceInches(4.5*12, 'L');
+					goDistanceInches((9*12)-40);
+					//fire cube
+					goDistanceInches(-(6*12), 'R');
+					goDistanceInches(4.5*12, 'L');
+					goDistanceInches((3*12)+4);
+					//pick up cube
+					goDistanceInches(-0.5*12, 'L');
+					goDistanceInches(4.5*12, 'L');
+					goDistanceInches((4.5*12)-4);
+					//fire cube
+				}
+			}
+		} else if (m_autoSelected[0] == "R") {  //If our robot starts on the right
+			if(gameData.length() > 0){
+				if(gameData[0] == 'L'){  //If our switch is on the left
+
+				} else if(gameData[0] == 'R'){  //If our switch is on the right
+					goDistanceInches(10.5*12, 'L');
+					//fire cube
+					TurnRobot(-90);
+					goDistanceInches(6*12, 'R');
+					goDistanceInches(3.5*12, 'L');
+					goDistanceInches((1.2*12)-36);
+					//Pick up cube
+					goDistanceInches(-6, 'L', 180);
+					goDistanceInches(6);
+					//fire cube
+				}
+			}
+		}
+	} else if (m_autoSelected[1] == 'D'){
+		if (m_autoSelected[0] == "L") {  //If our robot starts on the left
+			if(gameData.length() > 0){
+				if(gameData[0] == 'L'){  //If our switch is on the left
+					goDistanceInches(39*12, 'R');
+					goDistanceInches(3*12-36);
+					//Fire cube
+					goDistanceInches(-3*12, 'L');
+					goDistanceInches(4.5*12, 'L');
+					goDistanceInches(4*12, 'L');
+					goDistanceInches(4*12-40);
+					//pick up cube
+					goDistanceInches(-4*12+4, 'L', 180);
+				} else if(gameData[0] == 'R'){  //If our switch is on the right
+
+				}
+			}
+		} else if (m_autoSelected[0] == "M") {  //If our robot starts in the middle
+			if(gameData.length() > 0){
+				if(gameData[0] == 'L'){  //If our switch is on the left
+
+				} else if(gameData[0] == 'R'){  //If our switch is on the right
+
+				}
+			}
+		} else if (m_autoSelected[0] == "R") {  //If our robot starts on the right
+			if(gameData.length() > 0){
+				if(gameData[0] == 'L'){  //If our switch is on the left
+
+				} else if(gameData[0] == 'R'){  //If our switch is on the right
+					goDistanceInches(39*12, 'L');
+					goDistanceInches(3*12-36);
+					//Fire cube
+					goDistanceInches(-3*12, 'R');
+					goDistanceInches(4.5*12, 'R');
+					goDistanceInches(4*12, 'R');
+					goDistanceInches(4*12-40);
+					//pick up cube
+					goDistanceInches(-4*12+4, 'R', 180);
+				}
+			}
+		}
+
+	}*/
+	
 	}
 
 	void TeleopInit() {
