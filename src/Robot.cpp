@@ -111,9 +111,6 @@ private:
 				//Turn 90 degrees to the left
 				TurnRobot(-numOfDegrees);
 			}
-
-			// MOVE FORWARDS
-
 		}
 
 	// TODO:Distance Tracking
