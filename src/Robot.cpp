@@ -97,8 +97,8 @@ private:
 		isTurning = true;
 		initialAngle = gyro.GetAngle(); //angle at which robot starts
 	}
-
-	// Inches to Wheel Rotations and Execution Function
+/*
+// Inches to Wheel Rotations and Execution Function
 		void goDistanceInches(float numOfInches, char directionToTurn = '', float numOfDegrees = 90){
 			float numOfRotations = numOfInches/18.84;
 			//make the wheels turn numOfRotations times
@@ -124,11 +124,12 @@ private:
 			while(encoder.GetDistance() < dist && !Lc()) {
 				SmartDashboard::PutString("DB/String 1", DoubleToString(encoder.GetDistance()));
 				distLeft = dist - encoder.GetDistance();
-				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*/ 0.15, 0.0);
+				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*//* 0.15, 0.0);
 			}
 
 			myRobot.Drive(0.0, 0.0);
 		}
+		*/
 
 		// Set shooterSpeed to 1 so it will work without having to press up or down on the d-pad
 		double shooterSpeed = 1;
@@ -172,7 +173,7 @@ public:
 		SmartDashboard::PutString("DB/String 3", m_autoSelected);
 		if(m_autoSelected[2]== 'W'){
 			//sleep(1000);
-		}
+		}/*
 		if(m_autoSelected[1] == "O"){
 			if (m_autoSelected[0] == "L") {  //If our robot starts on the left
 				if(gameData.length() > 0){
@@ -239,7 +240,7 @@ public:
 					}
 				}
 			}
-		} else if (m_autoSelected[1] == 'D'){/*****************************DEFENSIVE CODE*************************************/
+		} else if (m_autoSelected[1] == 'D'){/*****************************DEFENSIVE CODE*************************************
 			if (m_autoSelected[0] == "L") {  //If our robot starts on the left
 				if(gameData.length() > 0){
 					if(gameData[0] == 'L'){  //If our switch is on the left
@@ -265,7 +266,8 @@ public:
 					}
 				}
 			}
-		}
+
+		}*/
 }
 
 	void AutonomousPeriodic() {
