@@ -84,6 +84,7 @@ private:
 		return controller.GetPOV(0) >= 225 && controller.GetPOV(0) <= 315;
 	}
 	bool start() { return controller.GetRawButton(8); } // Resets the gyro in teleop
+	bool select() { return controller.GetRawButton(7); }
 	bool R6() {return joystick_L.GetRawButton(6);}
 	double LDrive() {return joystick_L.GetY();}
 	double RDrive() {return joystick_R.GetY();}
@@ -156,6 +157,9 @@ public:
 		m_chooser.AddDefault("DO_NOTHING1", "DO_NOTHING2");
 		m_chooser.AddObject(kAutoNameCustom, kAutoNameCustom);
 		frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+
+		encoder.SetDistancePerPulse(18.85/360);
+		encoder.SetSamplesToAverage(5);
 	}
 
 	void AutonomousInit() override {
@@ -300,6 +304,8 @@ public:
 	}
 
 	void TeleopPeriodic() {
+        SmartDashboard::PutString("DB/String 4", DoubleToString(encoder.GetDistance()));
+
 		//joystick input for the left and right drive of the robot
 		myRobot.TankDrive(LDrive(), RDrive());
 
@@ -386,6 +392,10 @@ public:
 		//resets gyro: start button
 		if (start()){
 			gyro.Reset();
+		}
+
+		if (select()){
+			encoder.Reset();
 		}
 
 		if (isTurning) {
