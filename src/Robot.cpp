@@ -38,7 +38,7 @@ private:
 	frc::AnalogGyro gyro {1};
 	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
 	frc::SendableChooser<std::string> m_chooser;
-	frc::Encoder encoder{ 0, 1, false, Encoder::EncodingType::k4X };
+	frc::Encoder encoder{ 0, 1, true, Encoder::EncodingType::k4X };
 	frc::Timer timer;
 	const std::string kAutoNameDefault = "Default";
 	const std::string kAutoNameCustom = "My Auto";
@@ -89,6 +89,7 @@ private:
 	double LDrive() {return joystick_L.GetY();}
 	double RDrive() {return joystick_R.GetY();}
 	double TimerVar;
+	bool shooting;
 
 	// Turns robot relative to robot's position at the time of execution.  Delays everything until done.
 	double destinationAngle, initialAngle;  bool isTurning;
@@ -98,9 +99,9 @@ private:
 		isTurning = true;
 		initialAngle = gyro.GetAngle(); //angle at which robot starts
 	}
-/*
+
 // Inches to Wheel Rotations and Execution Function
-		void goDistanceInches(float numOfInches, char directionToTurn = '', float numOfDegrees = 90){
+/*		void goDistanceInches(float numOfInches, char directionToTurn = '', float numOfDegrees = 90){
 			float numOfRotations = numOfInches/18.84;
 			//make the wheels turn numOfRotations times
 			myRobot.TankDrive(LDrive(), RDrive());
@@ -112,21 +113,21 @@ private:
 				TurnRobot(-numOfDegrees);
 			}
 		}
-
+*/
 	// TODO:Distance Tracking
 		void ForwardDistance(double dist){
 			encoder.Reset();
 			double distLeft = dist;
 
-			while(encoder.GetDistance() < dist && !Lc()) {
-				SmartDashboard::PutString("DB/String 1", DoubleToString(encoder.GetDistance()));
+			while(fabs(encoder.GetDistance() - dist) > 10 && !Lc()) {
+				SmartDashboard::PutString("DB/String 4", DoubleToString(encoder.GetDistance()));
 				distLeft = dist - encoder.GetDistance();
-				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*//* 0.15, 0.0);
+				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*/ dist > 0 ? -0.4 : 0.4, 0.0);
 			}
 
 			myRobot.Drive(0.0, 0.0);
 		}
-		*/
+
 
 		// Set shooterSpeed to 1 so it will work without having to press up or down on the d-pad
 		double shooterSpeed = 1;
@@ -163,6 +164,7 @@ public:
 	}
 
 	void AutonomousInit() override {
+		shooting = false;
 		std::string gameData;
 		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
 
@@ -171,9 +173,18 @@ public:
 
 		std::cout << "Auto selected: " << m_autoSelected << std::endl;
 		SmartDashboard::PutString("DB/String 3", m_autoSelected);
-		if(m_autoSelected[2]== 'W'){
-			//sleep(1000);
-		}
+
+		ramp.Set(frc::DoubleSolenoid::kForward);
+		fire.Set(frc::DoubleSolenoid::kReverse);
+		ForwardDistance(-99);
+		shooterSpeed = 0.3;
+		shooting = true;
+
+
+//		timer.Start();
+//		SetShooter(0.3);
+//		if (timer.Get() > 0.25)
+//			fire.Set(frc::DoubleSolenoid::kForward);
 }
 
 	void AutonomousPeriodic() {
@@ -183,6 +194,18 @@ public:
 			std::string gameData;
 			gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
 		}
+
+		if (shooting) {
+			timer.Start();
+			SetShooter(shooterSpeed);
+			if (timer.Get() > TimerVar) {
+				fire.Set(frc::DoubleSolenoid::kForward);
+				timer.Stop();
+				timer.Reset();
+				shooting = false;
+			}
+		}
+
     /*
 	if(m_autoSelected[1] == "O"){
 		if (m_autoSelected[0] == "L") {  //If our robot starts on the left
@@ -300,7 +323,7 @@ public:
 	void TeleopInit() {
 		//sets compressor activation
 		compressor->SetClosedLoopControl(true);
-		gyro.Calibrate();
+		//gyro.Calibrate();
 	}
 
 	void TeleopPeriodic() {
@@ -347,12 +370,12 @@ public:
 		 * DPAD DOWN: Ramp down
 		 */
 		if (dpad_up()){
-			ramp.Set(frc::DoubleSolenoid::kForward);
+			ramp.Set(frc::DoubleSolenoid::kReverse);
 			shooterSpeed = 1;
 			TimerVar = 1;
 		}
 		else if (dpad_down()){
-			ramp.Set(frc::DoubleSolenoid::kReverse);
+			ramp.Set(frc::DoubleSolenoid::kForward);
 			shooterSpeed = 0.30;
 			TimerVar = 0.25;
 		}
