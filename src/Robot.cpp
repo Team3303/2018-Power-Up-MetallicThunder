@@ -107,25 +107,14 @@ private:
 			double angleRemaining = angle - gyro.GetAngle();
 			double turnSpeed =  angleRemaining / scale + 0.1;
 			myRobot.TankDrive(turnSpeed, -turnSpeed);
+
+			SmartDashboard::PutString("DB/String 5", DoubleToString(gyro.GetAngle()));
 		}
+
+
 
 		myRobot.Drive(0.0, 0.0);
 	}
-
-// Inches to Wheel Rotations and Execution Function
-		void goDistanceInches(float numOfInches, char directionToTurn = ' ', float numOfDegrees = 90){
-			float numOfRotations = numOfInches/18.84;
-			//make the wheels turn numOfRotations times
-
-			// Turns Robot AFTER moving
-			if(directionToTurn == 'R'){
-				//Turn 90 degrees to the right
-				TurnRobot(numOfDegrees);
-			} else if(directionToTurn == 'L'){
-				//Turn 90 degrees to the left
-				TurnRobot(-numOfDegrees);
-			}
-		}
 
 	// TODO:Distance Tracking
 		void ForwardDistance(double dist){
@@ -186,11 +175,13 @@ public:
 		std::cout << "Auto selected: " << m_autoSelected << std::endl;
 		SmartDashboard::PutString("DB/String 3", m_autoSelected);
 
-		ramp.Set(frc::DoubleSolenoid::kForward);
-		fire.Set(frc::DoubleSolenoid::kReverse);
-		ForwardDistance(-99);
-		shooterSpeed = 0.3;
-		shooting = true;
+		TurnRobot(90, 90);
+
+//		ramp.Set(frc::DoubleSolenoid::kForward);
+//		fire.Set(frc::DoubleSolenoid::kReverse);
+//		ForwardDistance(-99);
+//		shooterSpeed = 0.3;
+//		shooting = true;
 
 }
 
@@ -334,11 +325,15 @@ public:
 		//sets compressor activation
 		compressor->SetClosedLoopControl(true);
 		encoder.Reset();
+		gyro.Reset();
 	}
 
 	void TeleopPeriodic() {
 		//joystick input for the left and right drive of the robot
 		myRobot.TankDrive(LDrive(), RDrive());
+
+		SmartDashboard::PutString("DB/String 5", DoubleToString(gyro.GetAngle()));
+
 
 		if (R6()) {
 			myRobot.TankDrive(-RDrive(), -LDrive());
