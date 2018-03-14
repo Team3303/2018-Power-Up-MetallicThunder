@@ -132,7 +132,7 @@ private:
 			encoder.Reset();
 			double distLeft = dist;
 
-			while(fabs(encoder.GetDistance() - dist) > 10 && !Lc()) {
+			while(fabs(encoder.GetDistance() - dist) > 1 && !Lc()) {
 				SmartDashboard::PutString("DB/String 4", DoubleToString(encoder.GetDistance()));
 				distLeft = dist - encoder.GetDistance();
 				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*/ dist > 0 ? -0.4 : 0.4, 0.0);
@@ -171,6 +171,8 @@ public:
 		m_chooser.AddDefault("DO_NOTHING1", "DO_NOTHING2");
 		m_chooser.AddObject(kAutoNameCustom, kAutoNameCustom);
 		frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+		encoder.SetSamplesToAverage(5);
+		encoder.SetDistancePerPulse(1.0/360*18.84);
 	}
 
 	void AutonomousInit() override {
@@ -331,6 +333,7 @@ public:
 	void TeleopInit() {
 		//sets compressor activation
 		compressor->SetClosedLoopControl(true);
+		encoder.Reset();
 	}
 
 	void TeleopPeriodic() {
@@ -344,6 +347,8 @@ public:
 //		ledblink.Set(0.65);
 
 		frc::SmartDashboard::PutString("DB/String 3", DoubleToString(joystick_R.GetY()));
+		SmartDashboard::PutString("DB/String 4", DoubleToString(encoder.GetDistance()));
+
 
 		/*
 		 * LEFT BUMPER: Intake In
