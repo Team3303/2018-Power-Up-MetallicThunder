@@ -190,11 +190,10 @@ public:
 
 		std::cout << "Auto selected: " << m_autoSelected << std::endl;
 		SmartDashboard::PutString("DB/String 3", m_autoSelected);
-/*
-		TurnRobot(90, 90);
 
+		// Forward 30 Inches
 		ForwardDistance(30 * 12);
-		TurnRobot(-90);
+		TurnEncRobot(-12);
 
 		// Ramp up
 		ramp.Set(frc::DoubleSolenoid::kReverse);
@@ -203,7 +202,7 @@ public:
 
 		while (timer.Get() > TimerVar) {
 			timer.Start();
-			SetShooter(shooterSpeed);
+			//SetShooter(shooterSpeed);
 			if (timer.Get() > TimerVar)
 				fire.Set(frc::DoubleSolenoid::kForward);
 		}
@@ -212,9 +211,6 @@ public:
 		timer.Reset();
 		SetShooter(0);
 		fire.Set(frc::DoubleSolenoid::kReverse);
-		*/
-		ForwardDistance(110);
-		TurnEncRobot(30);
 
 //		ramp.Set(frc::DoubleSolenoid::kForward);
 //		fire.Set(frc::DoubleSolenoid::kReverse);
