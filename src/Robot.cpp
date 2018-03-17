@@ -21,6 +21,8 @@
 #include <Talon.h>
 #include <Timer.h>
 #include "wpilib.h"
+#include "ctre/Phoenix.h"
+
 
 using namespace std;
 
@@ -89,6 +91,9 @@ private:
 	double RDrive() {return joystick_R.GetY();}
 	double TimerVar;
 	bool shooting;
+	PigeonIMU * _pidgey = new PigeonIMU(0);
+	double xyz [3];
+
 
 	// Turns robot relative to robot's position at the time of execution.  Delays everything until done.
 	double destinationAngle, initialAngle;  bool isTurning;
@@ -360,13 +365,19 @@ public:
 		compressor->SetClosedLoopControl(true);
 		encoder.Reset();
 		gyro.Reset();
+		_pidgey->SetYaw(0, 1000);
+
 	}
 
 	void TeleopPeriodic() {
 		//joystick input for the left and right drive of the robot
 		myRobot.TankDrive(LDrive(), RDrive());
 
+		_pidgey->GetYawPitchRoll(xyz);
+
 		SmartDashboard::PutString("DB/String 5", DoubleToString(gyro.GetAngle()));
+		SmartDashboard::PutString("DB/String 7", DoubleToString(xyz[0]));
+
 
 
 		if (R6()) {
