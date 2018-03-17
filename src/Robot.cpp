@@ -116,6 +116,17 @@ private:
 		myRobot.Drive(0.0, 0.0);
 	}
 
+	void TurnEncRobot (double angle){
+		encoder.Reset();
+
+		while (fabs(encoder.GetDistance() - angle) > 1 && !Lc()){
+			SmartDashboard::PutString("DB/String 4", DoubleToString(encoder.GetDistance()));
+			myRobot.Drive(0.25, 1);
+		}
+
+		myRobot.Drive(0.0, 0.0);
+	}
+
 	// TODO:Distance Tracking
 		void ForwardDistance(double dist){
 			encoder.Reset();
@@ -124,7 +135,7 @@ private:
 			while(fabs(encoder.GetDistance() - dist) > 1 && !Lc()) {
 				SmartDashboard::PutString("DB/String 4", DoubleToString(encoder.GetDistance()));
 				distLeft = dist - encoder.GetDistance();
-				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*/ dist > 0 ? -0.4 : 0.4, 0.0);
+				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*/ dist > 0 ? -0.4 : 0.4, -0.05);
 			}
 
 			myRobot.Drive(0.0, 0.0);
@@ -174,8 +185,31 @@ public:
 
 		std::cout << "Auto selected: " << m_autoSelected << std::endl;
 		SmartDashboard::PutString("DB/String 3", m_autoSelected);
-
+/*
 		TurnRobot(90, 90);
+
+		ForwardDistance(30 * 12);
+		TurnRobot(-90);
+
+		// Ramp up
+		ramp.Set(frc::DoubleSolenoid::kReverse);
+		shooterSpeed = 1;
+		TimerVar = 1;
+
+		while (timer.Get() > TimerVar) {
+			timer.Start();
+			SetShooter(shooterSpeed);
+			if (timer.Get() > TimerVar)
+				fire.Set(frc::DoubleSolenoid::kForward);
+		}
+
+		timer.Stop();
+		timer.Reset();
+		SetShooter(0);
+		fire.Set(frc::DoubleSolenoid::kReverse);
+		*/
+		ForwardDistance(110);
+		TurnEncRobot(30);
 
 //		ramp.Set(frc::DoubleSolenoid::kForward);
 //		fire.Set(frc::DoubleSolenoid::kReverse);
@@ -273,11 +307,11 @@ public:
 					}
 				}
 			}
-		} else if (m_autoSelected[1] == 'D'){/*****************************DEFENSIVE CODE*************************************
+		} else if (m_autoSelected[1] == 'D'){
 			if (m_autoSelected[0] == "L") {  //If our robot starts on the left
 				if(gameData.length() > 0){
-					if(gameData[0] == 'L'){  //If our switch is on the left
 
+					if(gameData[0] == 'L'){  //If our switch is on the left
 					} else if(gameData[0] == 'R'){  //If our switch is on the right
 
 					}
