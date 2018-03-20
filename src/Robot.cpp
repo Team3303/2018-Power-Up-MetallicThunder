@@ -174,6 +174,34 @@ public:
 		shooter1.Set(value);
 	shooter2.Set(value);
 	}
+	void AutoRamp(string direction) {
+		if (direction == "down") {
+			ramp.Set(frc::DoubleSolenoid::kForward);
+		}
+		else if (direction == "up") {
+			ramp.Set(frc::DoubleSolenoid::kReverse);
+		}
+	}
+	void AutoArm(string direction){
+		if (direction == "out") {
+			arm.Set(frc::DoubleSolenoid::kReverse);
+		}
+		else if (direction == "in") {
+			arm.Set(frc::DoubleSolenoid::kForward);
+		}
+	}
+	void AutoShoot(double time, double speed){
+		timer.Stop();
+		timer.Reset();
+		while (timer.Get() < time + 0.25) {
+			SetShooter(speed);
+			if (timer.Get() > time);
+				fire.Set(frc::DoubleSolenoid::kForward);
+		}
+		fire.Set(frc::DoubleSolenoid::kReverse);
+		SetShooter(0);
+		timer.Stop();
+	}
 
 	void RobotInit() {
 		m_chooser.AddDefault("DO_NOTHING1", "DO_NOTHING2");
@@ -195,35 +223,18 @@ public:
 		std::cout << "Auto selected: " << m_autoSelected << std::endl;
 		SmartDashboard::PutString("DB/String 3", m_autoSelected);
 
-		// Forward 30 Inches
-		//ForwardDistance(30 * 12);
-		//TurnEncRobot(-12);
-		TurnRobot(90);
+		if (gameData.length() > 0){
+			//if (m_autoSelected == "O") {
+				//if (m_autoSelected == "L") {
+					if (gameData[0] == 'L') {
+						AutoRamp ("down");
+						ForwardDistance(140);
 
-		// Ramp up
-//		ramp.Set(frc::DoubleSolenoid::kReverse);
-//		shooterSpeed = 1;
-//		TimerVar = 1;
-//
-//		while (timer.Get() > TimerVar) {
-//			timer.Start();
-//			//SetShooter(shooterSpeed);
-//			if (timer.Get() > TimerVar)
-//				fire.Set(frc::DoubleSolenoid::kForward);
-//		}
-//
-//		timer.Stop();
-//		timer.Reset();
-//		SetShooter(0);
-//		fire.Set(frc::DoubleSolenoid::kReverse);
-
-//		ramp.Set(frc::DoubleSolenoid::kForward);
-//		fire.Set(frc::DoubleSolenoid::kReverse);
-//		ForwardDistance(-99);
-//		shooterSpeed = 0.3;
-//		shooting = true;
-
-}
+					}
+				//}
+			//}
+		}
+	}
 
 		//if(m_autoSelected[2]== 'W'){
 			//sleep(1000);
@@ -238,33 +249,32 @@ public:
 					//fire cube
 					TurnRobot(-90);
 					goDistanceInches(6*12, 'L');
-					goDistanceInches(3.5*12, 'R');
-					goDistanceInches((1.2*12)-36);
+					goDistanceInches(-3.5*12, 'R');
+					goDistanceInches(-(1.2*12)-36);
 					//Pick up cube
-					goDistanceInches(-6, 'R', 180);
+					goDistanceInches(6, 'R', 180);
 					goDistanceInches(6);
 					//fire cube
-				} else if(gameData[0] == 'R'){  //If our switch is on the right
-					
-		if(m_autoSelected[1] == "O"){
-			if (m_autoSelected[0] == "L") {  //If our robot starts on the left
-				if(gameData.length() > 0){
-					if(gameData[0] == 'L'){  //If our switch is on the left
-						goDistanceInches(10.5*12, 'R');
-						//fire cube
-						TurnRobot(-90);
-						goDistanceInches(6*12, 'L');
-						goDistanceInches(3.5*12, 'R');
-						goDistanceInches((1.2*12)-36);
-						//Pick up cube
-						goDistanceInches(-6, 'R', 180);
-						goDistanceInches(6);
-						//fire cube
-					} else if(gameData[0] == 'R'){  //If our switch is on the right
-
-					}
-				}
-
+				} else if(gameData[1] == 'L'){  //If the scale is on the right
+					goDistanceInches(27*12, 'L');
+					goDistanceInches(-6*12);
+					//fire
+					goDistanceInches((6.5*12)-36, 'R');
+					goDistanceInches((11*12)-36);
+					//pick up cube
+					goDistanceInches(-(11*12)+36, 'L');
+					goDistanceInches((6.5*12)+36);
+					//fire cube
+				} else if (gameData[1] == 'R'){
+					goDistanceInches(27*12, 'R');
+					goDistanceInches(-6*12);
+					//fire
+					goDistanceInches((6.5*12)-36, 'L');
+					goDistanceInches((11*12)-36);
+					//pick up cube
+					goDistanceInches(-(11*12)+36, 'R');
+					goDistanceInches((6.5*12)+36);
+					//fire cube
 			} else if (m_autoSelected[0] == "M") {  //If our robot starts in the middle
 				if(gameData.length() > 0){
 					if(gameData[0] == 'L'){  //If our switch is on the left
@@ -273,10 +283,10 @@ public:
 						goDistanceInches((9*12)-40);
 						//fire cube
 						goDistanceInches(-(6*12), 'L');
-						goDistanceInches(4.5*12, 'R');
-						goDistanceInches((3*12)+4);
+						goDistanceInches(-4.5*12, 'R');
+						goDistanceInches(-(3*12)+4);
 						//pick up cube
-						goDistanceInches(-0.5*12, 'R');
+						goDistanceInches(0.5*12, 'R');
 						goDistanceInches(4.5*12, 'R');
 						goDistanceInches((4.5*12)-4);
 						//fire cube
@@ -286,10 +296,10 @@ public:
 						goDistanceInches((9*12)-40);
 						//fire cube
 						goDistanceInches(-(6*12), 'R');
-						goDistanceInches(4.5*12, 'L');
-						goDistanceInches((3*12)+4);
+						goDistanceInches(-4.5*12, 'L');
+						goDistanceInches(-(3*12)+4);
 						//pick up cube
-						goDistanceInches(-0.5*12, 'L');
+						goDistanceInches(0.5*12, 'L');
 						goDistanceInches(4.5*12, 'L');
 						goDistanceInches((4.5*12)-4);
 						//fire cube
@@ -297,17 +307,36 @@ public:
 				}
 			} else if (m_autoSelected[0] == "R") {  //If our robot starts on the right
 				if(gameData.length() > 0){
-					if(gameData[0] == 'L'){  //If our switch is on the left
-
+					if(gameData[1] == 'L'){  //If the scale is on the left
+						goDistanceInches(27*12, 'R');
+						goDistanceInches(-6*12);
+						//fire
+						goDistanceInches((6.5*12)-36, 'L');
+						goDistanceInches((11*12)-36);
+						//pick up cube
+						goDistanceInches(-(11*12)+36, 'R');
+						goDistanceInches((6.5*12)+36);
+						//fire cube
+					} else if(gameData[1] == 'R'){
+						goDistanceInches(27*12, 'L');
+						goDistanceInches(-6*12);
+						//fire
+						goDistanceInches((6.5*12)-36, 'R');
+						goDistanceInches((11*12)-36);
+						//pick up cube
+						goDistanceInches(-(11*12)+36, 'L');
+						goDistanceInches((6.5*12)+36);
+						//fire cube
 					} else if(gameData[0] == 'R'){  //If our switch is on the right
+
 						goDistanceInches(10.5*12, 'L');
 						//fire cube
 						TurnRobot(-90);
 						goDistanceInches(6*12, 'R');
-						goDistanceInches(3.5*12, 'L');
-						goDistanceInches((1.2*12)-36);
+						goDistanceInches(-3.5*12, 'L');
+						goDistanceInches(-(1.2*12)-36);
 						//Pick up cube
-						goDistanceInches(-6, 'L', 180);
+						goDistanceInches(6, 'L', 180);
 						goDistanceInches(6);
 						//fire cube
 					}
