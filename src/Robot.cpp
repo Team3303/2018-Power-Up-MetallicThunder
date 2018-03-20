@@ -195,7 +195,7 @@ public:
 		timer.Reset();
 		while (timer.Get() < time + 0.25) {
 			SetShooter(speed);
-			if (timer.Get() > time);
+			if (timer.Get() > time)
 				fire.Set(frc::DoubleSolenoid::kForward);
 		}
 		fire.Set(frc::DoubleSolenoid::kReverse);
@@ -204,7 +204,7 @@ public:
 	}
 
 	void RobotInit() {
-		m_chooser.AddDefault("DO_NOTHING1", "DO_NOTHING2");
+		m_chooser.AddDefault(kAutoNameDefault, kAutoNameDefault );
 		m_chooser.AddObject(kAutoNameCustom, kAutoNameCustom);
 		frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 		encoder.SetSamplesToAverage(5);
@@ -224,7 +224,7 @@ public:
 		SmartDashboard::PutString("DB/String 3", m_autoSelected);
 
 		if (gameData.length() > 0){
-			//if (m_autoSelected == "O") {
+			if (m_autoSelected[0] == 'O') {
 				//if (m_autoSelected == "L") {
 					if (gameData[0] == 'L') {
 						AutoRamp ("down");
@@ -232,7 +232,7 @@ public:
 
 					}
 				//}
-			//}
+			}
 		}
 	}
 
@@ -374,6 +374,7 @@ public:
 	void AutonomousPeriodic() {
 		_pidgey->GetYawPitchRoll(ypr);
 		SmartDashboard::PutString("DB/String 5", DoubleToString(ypr[0]));
+		SmartDashboard::PutString("DB/String 3", m_autoSelected);
 		if (m_autoSelected == kAutoNameCustom) {
 
 		} else {
