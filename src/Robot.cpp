@@ -92,7 +92,7 @@ private:
 	double TimerVar;
 	bool shooting;
 	PigeonIMU * _pidgey = new PigeonIMU(0);
-	double xyz [3];
+	double ypr [3];
 
 
 	// Turns robot relative to robot's position at the time of execution.  Delays everything until done.
@@ -105,15 +105,18 @@ private:
 	}
 
 	// Rotate robot to the right by angle WITH A WHILE LOOP for AUTO
+	// negative turns right positive turns left
 	void TurnRobot(double angle, double scale = 90){   //takes angle in degrees, and scale in max degrees
-		gyro.Reset();
-		while( !(gyro.GetAngle() > (angle - 1) && gyro.GetAngle() < (angle + 1)) && !Lb() )
+		_pidgey->SetYaw(0, 1000);
+		_pidgey->GetYawPitchRoll(ypr);
+		while(fabs(ypr[0] - angle) > 5 && !Lc())
 		{
-			double angleRemaining = angle - gyro.GetAngle();
-			double turnSpeed =  angleRemaining / scale + 0.1;
-			myRobot.TankDrive(turnSpeed, -turnSpeed);
+			double angleRemaining = angle - ypr[0];
+			double turnSpeed =  angleRemaining / scale + 0.2;
+			myRobot.TankDrive(-turnSpeed, turnSpeed);
+			_pidgey->GetYawPitchRoll(ypr);
 
-			SmartDashboard::PutString("DB/String 5", DoubleToString(gyro.GetAngle()));
+			SmartDashboard::PutString("DB/String 5", DoubleToString(ypr[0]));
 		}
 
 
@@ -184,6 +187,7 @@ public:
 		shooting = false;
 		std::string gameData;
 		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+		_pidgey->SetYaw(0, 1000);
 
 		m_autoSelected = m_chooser.GetSelected();
 		m_autoSelected = SmartDashboard::GetString("Auto Selector", kAutoNameDefault);
@@ -192,25 +196,26 @@ public:
 		SmartDashboard::PutString("DB/String 3", m_autoSelected);
 
 		// Forward 30 Inches
-		ForwardDistance(30 * 12);
-		TurnEncRobot(-12);
+		//ForwardDistance(30 * 12);
+		//TurnEncRobot(-12);
+		TurnRobot(90);
 
 		// Ramp up
-		ramp.Set(frc::DoubleSolenoid::kReverse);
-		shooterSpeed = 1;
-		TimerVar = 1;
-
-		while (timer.Get() > TimerVar) {
-			timer.Start();
-			//SetShooter(shooterSpeed);
-			if (timer.Get() > TimerVar)
-				fire.Set(frc::DoubleSolenoid::kForward);
-		}
-
-		timer.Stop();
-		timer.Reset();
-		SetShooter(0);
-		fire.Set(frc::DoubleSolenoid::kReverse);
+//		ramp.Set(frc::DoubleSolenoid::kReverse);
+//		shooterSpeed = 1;
+//		TimerVar = 1;
+//
+//		while (timer.Get() > TimerVar) {
+//			timer.Start();
+//			//SetShooter(shooterSpeed);
+//			if (timer.Get() > TimerVar)
+//				fire.Set(frc::DoubleSolenoid::kForward);
+//		}
+//
+//		timer.Stop();
+//		timer.Reset();
+//		SetShooter(0);
+//		fire.Set(frc::DoubleSolenoid::kReverse);
 
 //		ramp.Set(frc::DoubleSolenoid::kForward);
 //		fire.Set(frc::DoubleSolenoid::kReverse);
@@ -338,6 +343,8 @@ public:
 		}*/
 
 	void AutonomousPeriodic() {
+		_pidgey->GetYawPitchRoll(ypr);
+		SmartDashboard::PutString("DB/String 5", DoubleToString(ypr[0]));
 		if (m_autoSelected == kAutoNameCustom) {
 
 		} else {
@@ -369,10 +376,9 @@ public:
 		//joystick input for the left and right drive of the robot
 		myRobot.TankDrive(LDrive(), RDrive());
 
-		_pidgey->GetYawPitchRoll(xyz);
+		_pidgey->GetYawPitchRoll(ypr);
 
-		SmartDashboard::PutString("DB/String 5", DoubleToString(gyro.GetAngle()));
-		SmartDashboard::PutString("DB/String 7", DoubleToString(xyz[0]));
+		SmartDashboard::PutString("DB/String 5", DoubleToString(ypr[0]));
 
 
 
