@@ -172,7 +172,7 @@ public:
 	}
 	void SetShooter(double value) {
 		shooter1.Set(value);
-	shooter2.Set(value);
+		shooter2.Set(value);
 	}
 	void AutoRamp(string direction) {
 		if (direction == "down") {
@@ -224,15 +224,73 @@ public:
 		SmartDashboard::PutString("DB/String 3", m_autoSelected);
 
 		if (gameData.length() > 0){
-			if (m_autoSelected[0] == 'O') {
-				//if (m_autoSelected == "L") {
-					if (gameData[0] == 'L') {
-						AutoRamp ("down");
-						ForwardDistance(140);
-
-					}
-				//}
+			// Left Side Autonomous
+			if (m_autoSelected == "LSW" && gameData[0] == 'L') { // Switch Left Side
+				AutoRamp ("down");
+				ForwardDistance(-168 + 19.5);
+				TurnRobot(-90);
+				ForwardDistance(-55.56);
+				AutoShoot (0.25, 0.3);
+			} else if (m_autoSelected == "LSC" && gameData[1] == 'L') { // Scale Left Side
+				ForwardDistance(-324 + 19.5);
+				TurnRobot(-90);
+				ForwardDistance(29);
+				AutoShoot (0.5, 1);
+			} else if (m_autoSelected == "LSW" && gameData[0] == 'R'){ //Wrong Side Switch
+				if (gameData[1] == 'L') { // Backup Scale
+					ForwardDistance(-324 + 19.5);
+					TurnRobot(-90);
+					ForwardDistance(29);
+					AutoShoot (0.5, 1);
+				} else if (gameData[1] == 'R') { // Baseline
+					ForwardDistance(-140);
+				}
+			} else if (m_autoSelected == "LSC" && gameData[1] == 'R') { // Wrong Side Scale
+				if (gameData[0] == 'L') { // Backup Switch
+					AutoRamp ("down");
+					ForwardDistance(-168 + 19.5);
+					TurnRobot(-90);
+					ForwardDistance(-55.56);
+					AutoShoot (0.25, 0.3);
+				}
+				if (gameData[0] == 'R') { // Baseline
+					ForwardDistance(-140);
+				}
 			}
+			// Right Side Autonomous
+			if (m_autoSelected == "RSW" && gameData[0] == 'R'){ // Switch Right Side
+				AutoRamp ("down");
+				ForwardDistance(-168 + 19.5);
+				TurnRobot(90);
+				ForwardDistance(-55.56);
+				AutoShoot (0.25, 0.3);
+			} else if (m_autoSelected == "RSC" && gameData[1] == 'R') { // Scale Right Side
+				ForwardDistance(-324 + 19.5);
+				TurnRobot(90);
+				ForwardDistance(29);
+				AutoShoot (0.5, 1);
+			} else if (m_autoSelected == "RSW" && gameData[0] == 'L') { // Wrong Side Switch
+				if (gameData[1] == 'R') { // Backup Scale
+					ForwardDistance(-324 + 19.5);
+					TurnRobot(90);
+					ForwardDistance(29);
+					AutoShoot (0.5, 1);
+				} else if (gameData[1] == 'L') { //Baseline
+					ForwardDistance(-140);
+				}
+			} else if (m_autoSelected == "RSC" && gameData[1] == 'L') { // Wrong Side Scale
+				if (gameData[0] == 'R') { // Backup Switch
+					AutoRamp ("down");
+					ForwardDistance(-168 + 19.5);
+					TurnRobot(90);
+					ForwardDistance(-55.56);
+					AutoShoot (0.25, 0.3);
+				} else if (gameData[0] == 'L') { // Baseline
+					ForwardDistance(-140);
+				}
+			}
+			// Middle Autonomous
+
 		}
 	}
 
