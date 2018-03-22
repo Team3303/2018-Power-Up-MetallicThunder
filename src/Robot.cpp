@@ -107,13 +107,13 @@ private:
 	// Rotate robot to the right by angle WITH A WHILE LOOP for AUTO
 	// negative turns right positive turns left
 	void TurnRobot(double angle, double scale = 90){   //takes angle in degrees, and scale in max degrees
-		_pidgey->SetYaw(0, 1000);
+		_pidgey->SetYaw(0.0, 1000);
 		_pidgey->GetYawPitchRoll(ypr);
-		while(fabs(ypr[0] - angle) > 5 && !Lc())
+		while (fabs(ypr[0] - angle) > 1 && !Lc())
 		{
 			double angleRemaining = angle - ypr[0];
-			double turnSpeed =  angleRemaining / scale + 0.2;
-			myRobot.TankDrive(-turnSpeed, turnSpeed);
+			double turnSpeed = angleRemaining / scale + 0.0;
+			myRobot.TankDrive(angle > 0? turnSpeed : -turnSpeed, angle > 0? -turnSpeed : turnSpeed);
 			_pidgey->GetYawPitchRoll(ypr);
 
 			SmartDashboard::PutString("DB/String 5", DoubleToString(ypr[0]));
@@ -136,14 +136,14 @@ private:
 	}
 
 	// TODO:Distance Tracking
-		void ForwardDistance(double dist){
+		void ForwardInches(double dist){
 			encoder.Reset();
 			double distLeft = dist;
 
 			while(fabs(encoder.GetDistance() - dist) > 1 && !Lc()) {
 				SmartDashboard::PutString("DB/String 4", DoubleToString(encoder.GetDistance()));
 				distLeft = dist - encoder.GetDistance();
-				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*/ dist > 0 ? -0.4 : 0.4, -0.05);
+				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*/ dist > 0 ? -0.4 : 0.4, -0.001);
 			}
 
 			myRobot.Drive(0.0, 0.0);
@@ -175,25 +175,26 @@ public:
 		shooter2.Set(value);
 	}
 	void AutoRamp(string direction) {
-		if (direction == "down") {
+		if (direction == "down" && !Lc()) {
 			ramp.Set(frc::DoubleSolenoid::kForward);
 		}
-		else if (direction == "up") {
+		else if (direction == "up" && !Lc()) {
 			ramp.Set(frc::DoubleSolenoid::kReverse);
 		}
 	}
 	void AutoArm(string direction){
-		if (direction == "out") {
+		if (direction == "out" && !Lc()) {
 			arm.Set(frc::DoubleSolenoid::kReverse);
 		}
-		else if (direction == "in") {
+		else if (direction == "in" && !Lc()) {
 			arm.Set(frc::DoubleSolenoid::kForward);
 		}
 	}
 	void AutoShoot(double time, double speed){
 		timer.Stop();
 		timer.Reset();
-		while (timer.Get() < time + 0.25) {
+		while (timer.Get() < time + 0.50 && !Lc()) {
+			timer.Start();
 			SetShooter(speed);
 			if (timer.Get() > time)
 				fire.Set(frc::DoubleSolenoid::kForward);
@@ -227,70 +228,94 @@ public:
 			// Left Side Autonomous
 			if (m_autoSelected == "LSW" && gameData[0] == 'L') { // Switch Left Side
 				AutoRamp ("down");
-				ForwardDistance(-168 + 19.5);
+				ForwardInches(-168 + 19.5);
 				TurnRobot(-90);
-				ForwardDistance(-55.56);
+				ForwardInches(-55.56);
 				AutoShoot (0.25, 0.3);
 			} else if (m_autoSelected == "LSC" && gameData[1] == 'L') { // Scale Left Side
-				ForwardDistance(-324 + 19.5);
+				ForwardInches(-324 + 19.5);
 				TurnRobot(-90);
-				ForwardDistance(29);
+				ForwardInches(29);
 				AutoShoot (0.5, 1);
 			} else if (m_autoSelected == "LSW" && gameData[0] == 'R'){ //Wrong Side Switch
 				if (gameData[1] == 'L') { // Backup Scale
-					ForwardDistance(-324 + 19.5);
+					ForwardInches(-324 + 19.5);
 					TurnRobot(-90);
-					ForwardDistance(29);
+					ForwardInches(29);
 					AutoShoot (0.5, 1);
 				} else if (gameData[1] == 'R') { // Baseline
-					ForwardDistance(-140);
+					ForwardInches(-140);
 				}
 			} else if (m_autoSelected == "LSC" && gameData[1] == 'R') { // Wrong Side Scale
 				if (gameData[0] == 'L') { // Backup Switch
 					AutoRamp ("down");
-					ForwardDistance(-168 + 19.5);
+					ForwardInches(-168 + 19.5);
 					TurnRobot(-90);
-					ForwardDistance(-55.56);
+					ForwardInches(-55.56);
 					AutoShoot (0.25, 0.3);
 				}
 				if (gameData[0] == 'R') { // Baseline
-					ForwardDistance(-140);
+					ForwardInches(-140);
 				}
 			}
 			// Right Side Autonomous
 			if (m_autoSelected == "RSW" && gameData[0] == 'R'){ // Switch Right Side
 				AutoRamp ("down");
-				ForwardDistance(-168 + 19.5);
+				ForwardInches(-168 + 19.5);
 				TurnRobot(90);
-				ForwardDistance(-55.56);
+				ForwardInches(-55.56);
 				AutoShoot (0.25, 0.3);
 			} else if (m_autoSelected == "RSC" && gameData[1] == 'R') { // Scale Right Side
-				ForwardDistance(-324 + 19.5);
+				ForwardInches(-324 + 19.5);
 				TurnRobot(90);
-				ForwardDistance(29);
+				ForwardInches(29);
 				AutoShoot (0.5, 1);
 			} else if (m_autoSelected == "RSW" && gameData[0] == 'L') { // Wrong Side Switch
 				if (gameData[1] == 'R') { // Backup Scale
-					ForwardDistance(-324 + 19.5);
+					ForwardInches(-324 + 19.5);
 					TurnRobot(90);
-					ForwardDistance(29);
+					ForwardInches(29);
 					AutoShoot (0.5, 1);
 				} else if (gameData[1] == 'L') { //Baseline
-					ForwardDistance(-140);
+					ForwardInches(-140);
 				}
 			} else if (m_autoSelected == "RSC" && gameData[1] == 'L') { // Wrong Side Scale
 				if (gameData[0] == 'R') { // Backup Switch
 					AutoRamp ("down");
-					ForwardDistance(-168 + 19.5);
+					ForwardInches(-168 + 19.5);
 					TurnRobot(90);
-					ForwardDistance(-55.56);
+					ForwardInches(-55.56);
 					AutoShoot (0.25, 0.3);
 				} else if (gameData[0] == 'L') { // Baseline
-					ForwardDistance(-140);
+					ForwardInches(-140);
 				}
 			}
 			// Middle Autonomous
-
+			if (m_autoSelected == "LSWM" && gameData[0] == 'L') { // Middle Auto for Left Position
+				AutoRamp ("down");
+				ForwardInches (-140 + 39);
+				AutoShoot (0.25, 0.3);
+			} else if (m_autoSelected == "LSWM" && gameData[0] == 'R') { // Wrong Side
+				AutoRamp ("down");
+				ForwardInches (-70 + 19.5);
+				TurnRobot (90);
+				ForwardInches (-154.26 + 49);
+				TurnRobot (-90);
+				ForwardInches (-70 + 19.5);
+				AutoShoot (0.25, 0.3);
+			} else if (m_autoSelected == "RSWM" && gameData[0] == 'R') { // Middle Auto for Left Position
+				AutoRamp ("down");
+				ForwardInches (-140 + 39);
+				AutoShoot (0.25, 0.3);
+			} else if (m_autoSelected == "RSWM" && gameData[0] == 'L') {
+				AutoRamp ("down");
+				ForwardInches (-70 + 19.5);
+				TurnRobot (-90);
+				ForwardInches (-154.26 + 49);
+				TurnRobot (90);
+				ForwardInches (-70 + 19.5);
+				AutoShoot (0.25, 0.3);
+			}
 		}
 	}
 
