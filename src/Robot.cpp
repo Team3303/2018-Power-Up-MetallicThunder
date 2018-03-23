@@ -34,7 +34,7 @@ private:
 	frc::Joystick controller {2};
 	frc::Talon Lintake{6}, Rintake{7},
 			   shooter1 {4}, shooter2{5},
-			   transfer{8};
+			   Ltransfer{8}, Rtransfer{9};
 	frc::Compressor *compressor = new Compressor(0);
 	frc::DoubleSolenoid ramp {0, 1}, arm {2, 3}, fire {4, 5};
 	frc::AnalogGyro gyro {1};
@@ -143,7 +143,7 @@ private:
 			while(fabs(encoder.GetDistance() - dist) > 1 && !Lc()) {
 				SmartDashboard::PutString("DB/String 4", DoubleToString(encoder.GetDistance()));
 				distLeft = dist - encoder.GetDistance();
-				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*/ dist > 0 ? -0.4 : 0.4, -0.001);
+				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*/ dist > 0 ? -0.2 : 0.2, 0);
 			}
 
 			myRobot.Drive(0.0, 0.0);
@@ -168,7 +168,8 @@ public:
 		Lintake.Set(value);
 	}
 	void SetTransfer(double value) {
-		transfer.Set(value);;
+		Ltransfer.Set(value);
+		Rtransfer.Set(value);
 	}
 	void SetShooter(double value) {
 		shooter1.Set(value);
@@ -210,6 +211,13 @@ public:
 		frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 		encoder.SetSamplesToAverage(5);
 		encoder.SetDistancePerPulse(1.0/360*18.84);
+
+		// Initialize Camera
+		CameraServer::GetInstance()->StartAutomaticCapture(0);
+//		cs::CvSink cvSink = CameraServer::GetInstance()->GetVideo();
+//		cs::CvSource outputStream = CameraServer::GetInstance()->PutVideo("Blur", 640, 480);
+//		CameraServer::GetInstance()->Add
+//		CameraServer::GetInstance()->AddCamera;
 	}
 
 	void AutonomousInit() override {
