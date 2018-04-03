@@ -40,7 +40,7 @@ private:
 	frc::AnalogGyro gyro {1};
 	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
 	frc::SendableChooser<std::string> m_chooser;
-	frc::Encoder encoder{ 0, 1, true, Encoder::EncodingType::k4X };
+	frc::Encoder encoder{ 0, 1, false, Encoder::EncodingType::k4X };
 	frc::Timer timer;
 	const std::string kAutoNameDefault = "Default";
 	const std::string kAutoNameCustom = "My Auto";
@@ -113,7 +113,7 @@ private:
 		{
 			double angleRemaining = angle - ypr[0];
 			double turnSpeed = angleRemaining / scale + 0.0;
-			myRobot.TankDrive(angle > 0? turnSpeed : -turnSpeed, angle > 0? -turnSpeed : turnSpeed);
+			myRobot.TankDrive(-turnSpeed, turnSpeed);
 			_pidgey->GetYawPitchRoll(ypr);
 
 			SmartDashboard::PutString("DB/String 5", DoubleToString(ypr[0]));
@@ -143,10 +143,21 @@ private:
 			while(fabs(encoder.GetDistance() - dist) > 1 && !Lc()) {
 				SmartDashboard::PutString("DB/String 4", DoubleToString(encoder.GetDistance()));
 				distLeft = dist - encoder.GetDistance();
-				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*/ dist > 0 ? -0.2 : 0.2, 0);
+				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*/ dist > 0 ? -0.7 : 0.7, 0);
 			}
 
 			myRobot.Drive(0.0, 0.0);
+		}
+
+		void ForwardSeconds(double seconds) {
+			timer.Stop();
+			timer.Reset();
+			while (timer.Get() < seconds) {
+				timer.Start();
+				myRobot.TankDrive(0.4, 0.4);
+			}
+			myRobot.Drive(0.0, 0.0);
+			timer.Stop();
 		}
 
 
@@ -164,7 +175,7 @@ public:
 	}
 	void SetIntake(double value){
 //		Lintake.Set(value);
-		Rintake.Set(dpad_left() ? -value : value);
+		Rintake.Set(-value);
 		Lintake.Set(value);
 	}
 	void SetTransfer(double value) {
@@ -218,23 +229,50 @@ public:
 //		cs::CvSource outputStream = CameraServer::GetInstance()->PutVideo("Blur", 640, 480);
 //		CameraServer::GetInstance()->Add
 //		CameraServer::GetInstance()->AddCamera;
+
+		m_chooser.AddDefault("DEFAULT 1", "LSC");
+		m_chooser.AddObject("TEST 2", "RSC");
+		m_chooser.AddObject("TEST 3", "LSW");
+		m_chooser.AddObject("TEST 4", "RSW");
 	}
 
 	void AutonomousInit() override {
-		shooting = false;
-		std::string gameData;
-		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
-		_pidgey->SetYaw(0, 1000);
+		//shooting = false;
+		//std::string gameData;
+		//SmartDashboard::PutString("DB/String 2", gameData);
 
-		m_autoSelected = m_chooser.GetSelected();
-		m_autoSelected = SmartDashboard::GetString("Auto Selector", kAutoNameDefault);
+		//_pidgey->SetYaw(0, 1000);
+		//encoder.Reset();	1
 
-		std::cout << "Auto selected: " << m_autoSelected << std::endl;
-		SmartDashboard::PutString("DB/String 3", m_autoSelected);
+		//m_autoSelected = m_chooser.GetSelected();
+		//m_autoSelected = SmartDashboard::GetString("Auto Selector", kAutoNameDefault);
 
-		if (gameData.length() > 0){
+		//std::cout << "Auto selected: " << m_autoSelected << std::endl;
+		//SmartDashboard::PutString("DB/String 3", m_autoSelected);
+
+		ForwardInches(-168 + 19.5);
+		//gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+
+
+/*		if (gameData[0] == 'L' && m_autoSelected[0] == 'L') {
+			AutoRamp("down");
+			ForwardSeconds (4);
+
+			AutoShoot(0.25, 0.3);
+		} else if (gameData[0] == 'R' && m_autoSelected[0] == 'L') {
+			AutoRamp("down");
+			ForwardSeconds (4);
+		} else if (gameData[0] == 'R' && m_autoSelected[0] == 'R') {
+			AutoRamp("down");
+			ForwardSeconds (4);
+			AutoShoot(0.25, 0.3);
+		} else if (gameData[0] == 'L' && m_autoSelected[0] == 'R') {
+			AutoRamp("down");
+			ForwardSeconds (4);
+		}*/
+
 			// Left Side Autonomous
-			if (m_autoSelected == "LSW" && gameData[0] == 'L') { // Switch Left Side
+/*			if (m_autoSelected == "LSW" && gameData[0] == 'L') { // Switch Left Side
 				AutoRamp ("down");
 				ForwardInches(-168 + 19.5);
 				TurnRobot(-90);
@@ -324,8 +362,8 @@ public:
 				ForwardInches (-70 + 19.5);
 				AutoShoot (0.25, 0.3);
 			}
-		}
-	}
+		}*/
+
 
 		//if(m_autoSelected[2]== 'W'){
 			//sleep(1000);
@@ -460,10 +498,11 @@ public:
 				}
 			}
 
-		}*/
+		*/
+	}
 
 	void AutonomousPeriodic() {
-		_pidgey->GetYawPitchRoll(ypr);
+		/*_pidgey->GetYawPitchRoll(ypr);
 		SmartDashboard::PutString("DB/String 5", DoubleToString(ypr[0]));
 		SmartDashboard::PutString("DB/String 3", m_autoSelected);
 		if (m_autoSelected == kAutoNameCustom) {
@@ -481,7 +520,7 @@ public:
 //            		myRobot.TankDrive(1, -1);
             	}
             }
-		}
+		}*/
 	}
 
 	void TeleopInit() {
@@ -549,7 +588,7 @@ public:
 		}
 		else if (dpad_down()){
 			ramp.Set(frc::DoubleSolenoid::kForward);
-			shooterSpeed = 0.30;
+			shooterSpeed = 0.40;
 			TimerVar = 0.25;
 		}
 
