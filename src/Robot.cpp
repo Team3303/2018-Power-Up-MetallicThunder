@@ -93,7 +93,16 @@ private:
 	bool shooting;
 	PigeonIMU * _pidgey = new PigeonIMU(0);
 	double ypr [3];
-
+	const double SIDESWITCH = 149;
+	const double SCALEDIST = 156;
+	const double AUTOINITM = 36;
+	const double SECTORAM = 3;
+	const double LEFT = 90;
+	const double RIGHT = -90;
+	const double LOWSHOOTSEC = 0.25;
+	const double LOWSHOOTSPEED = 0.3;
+	const double HIGHSHOOTSEC = 0.5;
+	const double HIGHSHOOTSPEED = 1;
 
 	// Turns robot relative to robot's position at the time of execution.  Delays everything until done.
 	double destinationAngle, initialAngle;  bool isTurning;
@@ -143,7 +152,7 @@ private:
 			while(fabs(encoder.GetDistance() - dist) > 1 && !Lc()) {
 				SmartDashboard::PutString("DB/String 4", DoubleToString(encoder.GetDistance()));
 				distLeft = dist - encoder.GetDistance();
-				myRobot.Drive(/*distLeft < 24 ? distLeft / 96 + 0.1: 00.25*/ dist > 0 ? -0.7 : 0.7, 0);
+				myRobot.Drive(dist > 0 ? -0.5 : 0.5, 0);
 			}
 
 			myRobot.Drive(0.0, 0.0);
@@ -155,6 +164,17 @@ private:
 			while (timer.Get() < seconds) {
 				timer.Start();
 				myRobot.TankDrive(0.4, 0.4);
+			}
+			myRobot.Drive(0.0, 0.0);
+			timer.Stop();
+		}
+
+		void BackwardSeconds(double seconds) {
+			timer.Stop();
+			timer.Reset();
+			while (timer.Get() < seconds) {
+				timer.Start();
+				myRobot.TankDrive(-0.4, -0.4);
 			}
 			myRobot.Drive(0.0, 0.0);
 			timer.Stop();
@@ -237,21 +257,21 @@ public:
 	}
 
 	void AutonomousInit() override {
-		//shooting = false;
-		//std::string gameData;
-		//SmartDashboard::PutString("DB/String 2", gameData);
+		shooting = false;
+		std::string gameData;
+		SmartDashboard::PutString("DB/String 2", gameData);
 
-		//_pidgey->SetYaw(0, 1000);
-		//encoder.Reset();	1
+		_pidgey->SetYaw(0, 1000);
+		encoder.Reset();
 
-		//m_autoSelected = m_chooser.GetSelected();
-		//m_autoSelected = SmartDashboard::GetString("Auto Selector", kAutoNameDefault);
+		m_autoSelected = m_chooser.GetSelected();
+		m_autoSelected = SmartDashboard::GetString("Auto Selector", kAutoNameDefault);
 
-		//std::cout << "Auto selected: " << m_autoSelected << std::endl;
-		//SmartDashboard::PutString("DB/String 3", m_autoSelected);
+		std::cout << "Auto selected: " << m_autoSelected << std::endl;
+		SmartDashboard::PutString("DB/String 3", m_autoSelected);
 
-		ForwardInches(-168 + 19.5);
-		//gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+
+		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
 
 
 /*		if (gameData[0] == 'L' && m_autoSelected[0] == 'L') {
@@ -271,98 +291,90 @@ public:
 			ForwardSeconds (4);
 		}*/
 
-			// Left Side Autonomous
-/*			if (m_autoSelected == "LSW" && gameData[0] == 'L') { // Switch Left Side
-				AutoRamp ("down");
-				ForwardInches(-168 + 19.5);
-				TurnRobot(-90);
-				ForwardInches(-55.56);
-				AutoShoot (0.25, 0.3);
-			} else if (m_autoSelected == "LSC" && gameData[1] == 'L') { // Scale Left Side
-				ForwardInches(-324 + 19.5);
-				TurnRobot(-90);
-				ForwardInches(29);
-				AutoShoot (0.5, 1);
-			} else if (m_autoSelected == "LSW" && gameData[0] == 'R'){ //Wrong Side Switch
-				if (gameData[1] == 'L') { // Backup Scale
-					ForwardInches(-324 + 19.5);
-					TurnRobot(-90);
-					ForwardInches(29);
-					AutoShoot (0.5, 1);
-				} else if (gameData[1] == 'R') { // Baseline
-					ForwardInches(-140);
-				}
-			} else if (m_autoSelected == "LSC" && gameData[1] == 'R') { // Wrong Side Scale
-				if (gameData[0] == 'L') { // Backup Switch
-					AutoRamp ("down");
-					ForwardInches(-168 + 19.5);
-					TurnRobot(-90);
-					ForwardInches(-55.56);
-					AutoShoot (0.25, 0.3);
-				}
-				if (gameData[0] == 'R') { // Baseline
-					ForwardInches(-140);
-				}
+		// Left Side Autonomous
+		if (m_autoSelected[3] != 'M' ){
+			ForwardInches(SIDESWITCH);
+		}
+		else {
+			ForwardInches(AUTOINITM);
+		}
+
+		if (m_autoSelected == "LSW" && gameData[0] == 'L') { // Switch Left Side
+			AutoRamp ("down");
+			TurnRobot(RIGHT);
+			ForwardSeconds (SECTORAM);
+			AutoShoot (LOWSHOOTSEC, LOWSHOOTSPEED);
+		} else if (m_autoSelected == "LSC" && gameData[1] == 'L') { // Scale Left Side
+			ForwardInches(SCALEDIST);
+			TurnRobot(RIGHT);
+			BackwardSeconds(SECTORAM);
+			AutoShoot (HIGHSHOOTSEC, HIGHSHOOTSPEED);
+		} else if (m_autoSelected == "LSW" && gameData[0] == 'R'){ //Wrong Side Switch
+			if (gameData[1] == 'L') { // Backup Scale
+				ForwardInches(SCALEDIST);
+				TurnRobot(RIGHT);
+				BackwardSeconds(SECTORAM);
+				AutoShoot (HIGHSHOOTSEC, HIGHSHOOTSPEED);
 			}
-			// Right Side Autonomous
-			if (m_autoSelected == "RSW" && gameData[0] == 'R'){ // Switch Right Side
+		} else if (m_autoSelected == "LSC" && gameData[1] == 'R') { // Wrong Side Scale
+			if (gameData[0] == 'L') { // Backup Switch
 				AutoRamp ("down");
-				ForwardInches(-168 + 19.5);
-				TurnRobot(90);
-				ForwardInches(-55.56);
-				AutoShoot (0.25, 0.3);
-			} else if (m_autoSelected == "RSC" && gameData[1] == 'R') { // Scale Right Side
-				ForwardInches(-324 + 19.5);
-				TurnRobot(90);
-				ForwardInches(29);
-				AutoShoot (0.5, 1);
-			} else if (m_autoSelected == "RSW" && gameData[0] == 'L') { // Wrong Side Switch
-				if (gameData[1] == 'R') { // Backup Scale
-					ForwardInches(-324 + 19.5);
-					TurnRobot(90);
-					ForwardInches(29);
-					AutoShoot (0.5, 1);
-				} else if (gameData[1] == 'L') { //Baseline
-					ForwardInches(-140);
-				}
-			} else if (m_autoSelected == "RSC" && gameData[1] == 'L') { // Wrong Side Scale
-				if (gameData[0] == 'R') { // Backup Switch
-					AutoRamp ("down");
-					ForwardInches(-168 + 19.5);
-					TurnRobot(90);
-					ForwardInches(-55.56);
-					AutoShoot (0.25, 0.3);
-				} else if (gameData[0] == 'L') { // Baseline
-					ForwardInches(-140);
-				}
+				TurnRobot(RIGHT);
+				ForwardSeconds (SECTORAM);
+				AutoShoot (LOWSHOOTSEC, LOWSHOOTSPEED);
 			}
-			// Middle Autonomous
-			if (m_autoSelected == "LSWM" && gameData[0] == 'L') { // Middle Auto for Left Position
-				AutoRamp ("down");
-				ForwardInches (-140 + 39);
-				AutoShoot (0.25, 0.3);
-			} else if (m_autoSelected == "LSWM" && gameData[0] == 'R') { // Wrong Side
-				AutoRamp ("down");
-				ForwardInches (-70 + 19.5);
-				TurnRobot (90);
-				ForwardInches (-154.26 + 49);
-				TurnRobot (-90);
-				ForwardInches (-70 + 19.5);
-				AutoShoot (0.25, 0.3);
-			} else if (m_autoSelected == "RSWM" && gameData[0] == 'R') { // Middle Auto for Left Position
-				AutoRamp ("down");
-				ForwardInches (-140 + 39);
-				AutoShoot (0.25, 0.3);
-			} else if (m_autoSelected == "RSWM" && gameData[0] == 'L') {
-				AutoRamp ("down");
-				ForwardInches (-70 + 19.5);
-				TurnRobot (-90);
-				ForwardInches (-154.26 + 49);
-				TurnRobot (90);
-				ForwardInches (-70 + 19.5);
-				AutoShoot (0.25, 0.3);
+		}
+		// Right Side Autonomous
+		if (m_autoSelected == "RSW" && gameData[0] == 'R'){ // Switch Right Side
+			AutoRamp ("down");
+			TurnRobot(LEFT);
+			ForwardSeconds(SECTORAM);
+			AutoShoot (LOWSHOOTSEC, LOWSHOOTSPEED);
+		} else if (m_autoSelected == "RSC" && gameData[1] == 'R') { // Scale Right Side
+			ForwardInches(SCALEDIST);
+			TurnRobot(LEFT);
+			BackwardSeconds(SECTORAM);
+			AutoShoot (HIGHSHOOTSEC, HIGHSHOOTSPEED);
+		} else if (m_autoSelected == "RSW" && gameData[0] == 'L') { // Wrong Side Switch
+			if (gameData[1] == 'R') { // Backup Scale
+				ForwardInches(SCALEDIST);
+				TurnRobot(LEFT);
+				BackwardSeconds(SECTORAM);
+				AutoShoot (HIGHSHOOTSEC, HIGHSHOOTSPEED);
 			}
-		}*/
+		} else if (m_autoSelected == "RSC" && gameData[1] == 'L') { // Wrong Side Scale
+			if (gameData[0] == 'R') { // Backup Switch
+				AutoRamp ("down");
+				TurnRobot(LEFT);
+				ForwardSeconds(SECTORAM);
+				AutoShoot (LOWSHOOTSEC, LOWSHOOTSPEED);
+			}
+		}
+		// Middle Autonomous
+		if (m_autoSelected == "LSWM" && gameData[0] == 'L') { // Middle Auto for Left Position
+			AutoRamp ("down");
+			ForwardSeconds (SECTORAM);
+			AutoShoot (LOWSHOOTSEC, LOWSHOOTSPEED);
+		} else if (m_autoSelected == "LSWM" && gameData[0] == 'R') { // Wrong Side
+			AutoRamp ("down");
+			TurnRobot (LEFT);
+			ForwardInches (-154.26 + 49);
+			TurnRobot (-90);
+			ForwardInches (-70 + 19.5);
+			AutoShoot (0.25, 0.3);
+		} else if (m_autoSelected == "RSWM" && gameData[0] == 'R') { // Middle Auto for Left Position
+			AutoRamp ("down");
+			ForwardInches (-140 + 39);
+			AutoShoot (0.25, 0.3);
+		} else if (m_autoSelected == "RSWM" && gameData[0] == 'L') {
+			AutoRamp ("down");
+			TurnRobot (-90);
+			ForwardInches (-154.26 + 49);
+			TurnRobot (90);
+			ForwardInches (-70 + 19.5);
+			AutoShoot (0.25, 0.3);
+		}
+	}
 
 
 		//if(m_autoSelected[2]== 'W'){
@@ -499,7 +511,7 @@ public:
 			}
 
 		*/
-	}
+
 
 	void AutonomousPeriodic() {
 		/*_pidgey->GetYawPitchRoll(ypr);
