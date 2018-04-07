@@ -36,7 +36,7 @@ private:
 			   shooter1 {4}, shooter2{5},
 			   Ltransfer{8}, Rtransfer{9};
 	frc::Compressor *compressor = new Compressor(0);
-	frc::DoubleSolenoid ramp {0, 1}, arm {2, 3}, fire {4, 5};
+	frc::DoubleSolenoid ramp {0, 1}, arm {2, 3}, fire {4, 5};;
 	frc::AnalogGyro gyro {1};
 	frc::LiveWindow& m_lw = *LiveWindow::GetInstance();
 	frc::SendableChooser<std::string> m_chooser;
@@ -93,9 +93,9 @@ private:
 	bool shooting;
 	PigeonIMU * _pidgey = new PigeonIMU(0);
 	double ypr [3];
-	const double SIDESWITCH = 149;
-	const double SCALEDIST = 156;
-	const double AUTOINITM = 36;
+	const double SIDESWITCH = -168;
+	const double SCALEDIST = -156;
+	const double AUTOINITM = -36;
 	const double SECTORAM = 3;
 	const double LEFT = 90;
 	const double RIGHT = -90;
@@ -103,6 +103,8 @@ private:
 	const double LOWSHOOTSPEED = 0.3;
 	const double HIGHSHOOTSEC = 0.5;
 	const double HIGHSHOOTSPEED = 1;
+	const double SECTOSTOP = 3;
+	const double BACKWARDS = 20;
 
 	// Turns robot relative to robot's position at the time of execution.  Delays everything until done.
 	double destinationAngle, initialAngle;  bool isTurning;
@@ -118,11 +120,11 @@ private:
 	void TurnRobot(double angle, double scale = 90){   //takes angle in degrees, and scale in max degrees
 		_pidgey->SetYaw(0.0, 1000);
 		_pidgey->GetYawPitchRoll(ypr);
-		while (fabs(ypr[0] - angle) > 1 && !Lc())
+		while (fabs(ypr[0] - angle) > 10 && !Lc())
 		{
-			double angleRemaining = angle - ypr[0];
-			double turnSpeed = angleRemaining / scale + 0.0;
-			myRobot.TankDrive(-turnSpeed, turnSpeed);
+			//double angleRemaining = angle - ypr[0];
+			//double turnSpeed = angleRemaining / scale + 0.0;
+			myRobot.TankDrive(-0.5, 0.5);
 			_pidgey->GetYawPitchRoll(ypr);
 
 			SmartDashboard::PutString("DB/String 5", DoubleToString(ypr[0]));
@@ -149,10 +151,11 @@ private:
 			encoder.Reset();
 			double distLeft = dist;
 
-			while(fabs(encoder.GetDistance() - dist) > 1 && !Lc()) {
+			while(fabs(encoder.GetDistance() - dist) > 5 && !Lc()) {
 				SmartDashboard::PutString("DB/String 4", DoubleToString(encoder.GetDistance()));
 				distLeft = dist - encoder.GetDistance();
-				myRobot.Drive(dist > 0 ? -0.5 : 0.5, 0);
+				myRobot.Drive(dist > 0 ? -0.50 : 0.50, 0);
+				//myRobot.TankDrive (0.5, 0.5);
 			}
 
 			myRobot.Drive(0.0, 0.0);
@@ -161,19 +164,20 @@ private:
 		void ForwardSeconds(double seconds) {
 			timer.Stop();
 			timer.Reset();
+			timer.Start();
 			while (timer.Get() < seconds) {
-				timer.Start();
-				myRobot.TankDrive(0.4, 0.4);
+				myRobot.TankDrive(1, 1);
 			}
 			myRobot.Drive(0.0, 0.0);
 			timer.Stop();
+			SmartDashboard::PutString("DB/String 6", "Finished Second Moving");
 		}
 
 		void BackwardSeconds(double seconds) {
 			timer.Stop();
 			timer.Reset();
+			timer.Start();
 			while (timer.Get() < seconds) {
-				timer.Start();
 				myRobot.TankDrive(-0.4, -0.4);
 			}
 			myRobot.Drive(0.0, 0.0);
@@ -195,8 +199,8 @@ public:
 	}
 	void SetIntake(double value){
 //		Lintake.Set(value);
-		Rintake.Set(-value);
-		Lintake.Set(value);
+		Rintake.Set(value);
+		Lintake.Set(-value);
 	}
 	void SetTransfer(double value) {
 		Ltransfer.Set(value);
@@ -225,7 +229,7 @@ public:
 	void AutoShoot(double time, double speed){
 		timer.Stop();
 		timer.Reset();
-		while (timer.Get() < time + 0.50 && !Lc()) {
+		while (timer.Get() < time + 0.80 && !Lc()) {
 			timer.Start();
 			SetShooter(speed);
 			if (timer.Get() > time)
@@ -268,7 +272,7 @@ public:
 		m_autoSelected = SmartDashboard::GetString("Auto Selector", kAutoNameDefault);
 
 		std::cout << "Auto selected: " << m_autoSelected << std::endl;
-		SmartDashboard::PutString("DB/String 3", m_autoSelected);
+		SmartDashboard::PutString("DB/String 8", m_autoSelected);
 
 
 		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
@@ -292,12 +296,18 @@ public:
 		}*/
 
 		// Left Side Autonomous
-		if (m_autoSelected[3] != 'M' ){
-			ForwardInches(SIDESWITCH);
+		if ( m_autoSelected == "LSWM" || m_autoSelected == "RSWM"){
+			ForwardSeconds(SECTOSTOP);
+			std::cout << "Finished initial movement\n";
 		}
 		else {
-			ForwardInches(AUTOINITM);
+			ForwardInches(SIDESWITCH);
 		}
+//		TurnRobot(90);
+
+		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+		SmartDashboard::PutString("DB/String 7", gameData);
+
 
 		if (m_autoSelected == "LSW" && gameData[0] == 'L') { // Switch Left Side
 			AutoRamp ("down");
@@ -351,28 +361,19 @@ public:
 			}
 		}
 		// Middle Autonomous
+		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+		SmartDashboard::PutString("DB/String 7", gameData);
+
 		if (m_autoSelected == "LSWM" && gameData[0] == 'L') { // Middle Auto for Left Position
+			std::cout << "Started middle auto\n";
 			AutoRamp ("down");
-			ForwardSeconds (SECTORAM);
 			AutoShoot (LOWSHOOTSEC, LOWSHOOTSPEED);
-		} else if (m_autoSelected == "LSWM" && gameData[0] == 'R') { // Wrong Side
-			AutoRamp ("down");
-			TurnRobot (LEFT);
-			ForwardInches (-154.26 + 49);
-			TurnRobot (-90);
-			ForwardInches (-70 + 19.5);
-			AutoShoot (0.25, 0.3);
+			SmartDashboard::PutString("DB/String 6", "Finished LSWM");
 		} else if (m_autoSelected == "RSWM" && gameData[0] == 'R') { // Middle Auto for Left Position
+			std::cout << "Started middle auto\n";
 			AutoRamp ("down");
-			ForwardInches (-140 + 39);
-			AutoShoot (0.25, 0.3);
-		} else if (m_autoSelected == "RSWM" && gameData[0] == 'L') {
-			AutoRamp ("down");
-			TurnRobot (-90);
-			ForwardInches (-154.26 + 49);
-			TurnRobot (90);
-			ForwardInches (-70 + 19.5);
-			AutoShoot (0.25, 0.3);
+			AutoShoot (LOWSHOOTSEC, LOWSHOOTSPEED);
+			SmartDashboard::PutString("DB/String 6", "Finished RSWM");
 		}
 	}
 
@@ -514,9 +515,11 @@ public:
 
 
 	void AutonomousPeriodic() {
-		/*_pidgey->GetYawPitchRoll(ypr);
+		_pidgey->GetYawPitchRoll(ypr);
 		SmartDashboard::PutString("DB/String 5", DoubleToString(ypr[0]));
 		SmartDashboard::PutString("DB/String 3", m_autoSelected);
+		SmartDashboard::PutString("DB/String 4", DoubleToString(encoder.GetDistance()));
+
 		if (m_autoSelected == kAutoNameCustom) {
 
 		} else {
@@ -532,7 +535,7 @@ public:
 //            		myRobot.TankDrive(1, -1);
             	}
             }
-		}*/
+		}
 	}
 
 	void TeleopInit() {
@@ -569,7 +572,7 @@ public:
 		 * RIGHT BUMPER: Intake Out
 		 */
 		if (Lb()) {
-			SetIntake(-0.5);
+			SetIntake(-0.75);
 		} else if (Rb()) {
 			SetIntake(0.75);
 		} else {
